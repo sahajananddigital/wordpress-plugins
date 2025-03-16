@@ -17,7 +17,7 @@ License: GPL2
 
 <?php
 // Add custom code here
-add_action('sensei_login_form_before', 'sensie_google_login_with_rtcamp');
+add_action('sensei_login_form_inside_after', 'sensie_google_login_with_rtcamp');
 function sensie_google_login_with_rtcamp() {
     echo do_shortcode('[google_login button_text="Google Login" force_display="yes" /]');
 }
