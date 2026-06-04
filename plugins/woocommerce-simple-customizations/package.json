@@ -1,0 +1,33 @@
+{
+    "name": "woocommerce-simple-customizations",
+    "version": "1.0.0",
+    "description": "React Admin UI for WooCommerce Simple Customizations",
+    "author": "Multidots",
+    "license": "GPL-2.0-or-later",
+    "main": "build/index.js",
+    "scripts": {
+        "build": "wp-scripts build",
+        "start": "wp-scripts start",
+        "format": "wp-scripts format",
+        "packages-update": "wp-scripts packages-update",
+        "zip": "npm run build && wp-scripts plugin-zip",
+        "test:e2e": "playwright test",
+        "start:playground": "npx @wp-playground/cli server --blueprint=tests/e2e/blueprint.json --mount=./:/wordpress/wp-content/plugins/woocommerce-simple-customizations --mount=./tests/e2e/wsc-e2e-setup:/wordpress/wp-content/plugins/wsc-e2e-setup --port=9400"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.40.0",
+        "@woocommerce/components": "^12.0.0",
+        "@wordpress/api-fetch": "^6.0.0",
+        "@wordpress/components": "^25.0.0",
+        "@wordpress/data": "^9.0.0",
+        "@wordpress/element": "^5.0.0",
+        "@wordpress/hooks": "^3.0.0",
+        "@wordpress/i18n": "^4.0.0",
+        "@wordpress/plugins": "^6.0.0",
+        "@wordpress/scripts": "^26.0.0"
+    },
+    "dependencies": {
+        "ajv": "^8.17.1",
+        "ajv-keywords": "^5.1.0"
+    }
+}

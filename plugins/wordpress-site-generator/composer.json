@@ -1,0 +1,14 @@
+{
+    "name": "antigravity/ai-site-generator",
+    "description": "AI Site Generator Plugin",
+    "type": "wordpress-plugin",
+    "require": {
+        "wordpress/wp-ai-client": "^0.2.1"
+    },
+    "license": "GPL-2.0+",
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}

@@ -1,0 +1,12 @@
+src
+node_modules
+.git
+.github
+.gitignore
+package.json
+package-lock.json
+webpack.config.js
+webpack.config.js
+.vscode
+.DS_Store
+*.zip

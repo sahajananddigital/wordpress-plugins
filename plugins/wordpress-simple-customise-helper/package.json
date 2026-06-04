@@ -1,0 +1,27 @@
+{
+    "name": "wordpress-simple-customise-helper",
+    "version": "1.0.0",
+    "description": "React Admin UI for WordPress Simple Customise Helper",
+    "author": "Sahajanand Digital",
+    "license": "GPL-2.0-or-later",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/sahajananddigital/wordpress-simple-customise-helper.git"
+    },
+    "main": "build/index.js",
+    "scripts": {
+        "build": "wp-scripts build",
+        "start": "wp-scripts start",
+        "format": "wp-scripts format",
+        "packages-update": "wp-scripts packages-update",
+        "zip": "npm run build && wp-scripts plugin-zip",
+        "playground": "npx @wp-playground/cli server --auto-mount"
+    },
+    "devDependencies": {
+        "@wordpress/components": "^25.0.0",
+        "@wordpress/element": "^5.0.0",
+        "@wordpress/i18n": "^4.0.0",
+        "@wordpress/scripts": "^26.0.0",
+        "@wordpress/api-fetch": "^6.0.0"
+    }
+}

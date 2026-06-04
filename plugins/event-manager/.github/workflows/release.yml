@@ -1,0 +1,44 @@
+name: Release Plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build & Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Build Plugin
+      run: npm run build
+
+    - name: Create Plugin Zip
+      run: npm run plugin-zip
+
+    - name: Get Release File Name
+      id: get_filename
+      run: |
+        echo "filename=$(ls *.zip)" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ steps.get_filename.outputs.filename }}
+        generate_release_notes: true

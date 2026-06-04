@@ -1,0 +1,8 @@
+{
+    "name": "wc-chatbot-playground",
+    "private": true,
+    "scripts": {
+        "playground": "npx --yes @wp-playground/cli server",
+        "playground:test": "npx --yes @wp-playground/cli server --auto-mount --blueprint=tests/playground-blueprint.json"
+    }
+}

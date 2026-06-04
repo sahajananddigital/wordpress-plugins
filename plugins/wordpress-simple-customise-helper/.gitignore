@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Build
+build/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+*.zip

@@ -1,0 +1,26 @@
+{
+    "name": "sahajananddigital/woocommerce-simple-customizations",
+    "description": "WooCommerce Simple Customizations Plugin",
+    "type": "wordpress-plugin",
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "wp-coding-standards/wpcs": "^3.0"
+    },
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Sahajanand Digital",
+            "email": "support@sahajananddigital.in"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "WSC\\": "includes/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

@@ -1,0 +1,153 @@
+.ai-site-gen-app {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.ai-site-gen-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.ai-site-gen-tabs button {
+    margin-bottom: 5px;
+}
+
+.ai-site-gen-review h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+/* Visual Preview Styles */
+.visual-preview-container {
+    background: #f0f0f1;
+    padding: 40px 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-top: 20px;
+}
+
+.preview-browser-frame {
+    background: white;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.preview-toolbar {
+    background: #e0e0e0;
+    padding: 10px;
+    display: flex;
+    gap: 5px;
+}
+
+.preview-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ccc;
+}
+
+.preview-dot.red { background: #ff5f56; }
+.preview-dot.yellow { background: #ffbd2e; }
+.preview-dot.green { background: #27c93f; }
+
+.preview-content {
+    min-height: 600px;
+    padding-bottom: 60px;
+}
+
+/* Section Mockups (Ollie Style) */
+.mock-hero {
+    background: #111;
+    color: white;
+    padding: 100px 40px;
+    text-align: center;
+}
+
+.mock-hero h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.mock-hero p {
+    font-size: 20px;
+    opacity: 0.8;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.mock-button {
+    background: white;
+    color: black;
+    padding: 15px 30px;
+    border-radius: 50px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.mock-features {
+    padding: 80px 40px;
+    background: white;
+    text-align: center;
+}
+
+.mock-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.mock-feature-card {
+    text-align: left;
+    padding: 20px;
+}
+
+.mock-feature-card h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.mock-about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 80px 40px;
+    align-items: center;
+}
+
+.mock-image-placeholder {
+    background: #eee;
+    height: 300px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+}
+
+.mock-testimonials {
+    background: #f9f9f9;
+    padding: 80px 40px;
+    text-align: center;
+}
+
+.mock-quote {
+    font-style: italic;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.mock-cta {
+    background: #3858e9;
+    color: white;
+    padding: 60px 40px;
+    text-align: center;
+}
+
+.mock-cta h2 {
+    color: white;
+    margin-bottom: 20px;
+}

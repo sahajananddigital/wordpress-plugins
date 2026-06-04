@@ -1,0 +1,28 @@
+{
+    "name": "woocommerce-conditional-shipping-and-payments",
+    "version": "1.0.0",
+    "description": "Conditional Shipping and Payments for WooCommerce",
+    "main": "build/index.js",
+    "scripts": {
+        "build": "wp-scripts build",
+        "format": "wp-scripts format",
+        "lint:css": "wp-scripts lint-style",
+        "lint:js": "wp-scripts lint-js",
+        "packages-update": "wp-scripts packages-update",
+        "plugin-zip": "wp-scripts plugin-zip",
+        "start": "wp-scripts start"
+    },
+    "dependencies": {
+        "@woocommerce/components": "^12.0.0",
+        "@wordpress/api-fetch": "^7.0.0",
+        "@wordpress/components": "^28.0.0",
+        "@wordpress/element": "^6.0.0",
+        "@wordpress/i18n": "^5.0.0",
+        "@wordpress/url": "^4.0.0",
+        "ajv": "^8.17.1"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.57.0",
+        "@wordpress/scripts": "^28.0.0"
+    }
+}

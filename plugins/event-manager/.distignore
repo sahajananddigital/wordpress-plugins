@@ -1,0 +1,15 @@
+# Ignore development files
+/.git
+/.github
+/node_modules
+/src
+/tests
+/.gitignore
+/.distignore
+/package.json
+/package-lock.json
+/webpack.config.js
+/README.md
+/DOCUMENTATION.md
+/AI_BRAIN.md
+/test_data.php

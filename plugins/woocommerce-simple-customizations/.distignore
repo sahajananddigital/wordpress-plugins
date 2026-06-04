@@ -1,0 +1,28 @@
+# Development files
+/.git
+/.github
+/.vscode
+/.idea
+/.DS_Store
+/node_modules
+/src
+/tests
+/coverage
+
+# Config files
+.editorconfig
+.eslintignore
+.eslintrc
+.gitignore
+.prettierrc
+.stylelintrc
+composer.json
+composer.lock
+package.json
+package-lock.json
+phpunit.xml.dist
+readme.md
+IMPLEMENTATION_PLAN.md
+TASK.md
+WALKTHROUGH.md
+webpack.config.js

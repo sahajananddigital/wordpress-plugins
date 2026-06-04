@@ -1,0 +1,10 @@
+
+WordPress Playground CLI
+
+PHP 8.3  WordPress latest
+Extensions intl, redis, memcached
+Blueprint tests/check-active.json
+
+
+Ready! WordPress is running on http://127.0.0.1:9400 (6 workers)
+

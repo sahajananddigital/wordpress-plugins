@@ -1,0 +1,25 @@
+# Source and dependencies
+node_modules
+src
+tests
+.git
+.gitignore
+.distignore
+.github
+.vscode
+.DS_Store
+
+# Configs
+playwright.config.js
+webpack.config.js
+phpunit.xml.dist
+.eslintrc
+.stylelintrc
+.prettierrc
+
+# Logs and Artifacts
+debug_csp.log
+*.zip
+task.md
+implementation_plan.md
+walkthrough.md

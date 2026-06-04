@@ -1,0 +1,4 @@
+/* Cleared in favor of WordPress standard styles and @wordpress/components */
+#wp-event-manager-app {
+    /* Container styles handled by WP Admin 'wrap' class */
+}

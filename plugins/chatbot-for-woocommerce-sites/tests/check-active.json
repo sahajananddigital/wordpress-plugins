@@ -1,0 +1,9 @@
+{
+    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+    "steps": [
+        {
+            "step": "runPHP",
+            "code": "<?php \nrequire_once '/wordpress/wp-load.php'; \n$active_plugins = get_option('active_plugins');\necho \"ACTIVE PLUGINS:\\n\";\nprint_r($active_plugins);\n"
+        }
+    ]
+}

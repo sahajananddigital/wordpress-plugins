@@ -1,0 +1,27 @@
+{
+    "name": "ai-site-generator",
+    "version": "1.0.0",
+    "description": "WordPress AI Site Generator Plugin",
+    "main": "build/index.js",
+    "scripts": {
+        "build": "wp-scripts build",
+        "start": "wp-scripts start",
+        "format": "wp-scripts format",
+        "lint:js": "wp-scripts lint-js",
+        "packages-update": "wp-scripts packages-update",
+        "zip": "zip -r ai-site-generator.zip . -x \"node_modules/*\" \"_archive/*\" \"src/*\" \".git/*\" \".env*\" \"package-lock.json\" \"tsconfig.json\" \"webpack.config.js\" \".vscode/*\" \".DS_Store\"",
+        "dist": "npm install && npm run build && composer install --no-dev && npm run zip",
+        "playground": "npm run build && npx @wp-playground/cli@latest server --auto-mount --blueprint=blueprint.json",
+        "test": "npx @wp-playground/cli php --auto-mount -- /wordpress/wp-content/plugins/wordpress-site-generator/tests/test-content-manager.php && npx @wp-playground/cli php --auto-mount -- /wordpress/wp-content/plugins/wordpress-site-generator/tests/test-ai-generator.php"
+    },
+    "devDependencies": {
+        "@wordpress/scripts": "^26.0.0",
+        "@wp-playground/cli": "^3.1.13"
+    },
+    "dependencies": {
+        "@wordpress/api-fetch": "^6.0.0",
+        "@wordpress/components": "^25.0.0",
+        "@wordpress/element": "^5.0.0",
+        "@wordpress/i18n": "^4.0.0"
+    }
+}

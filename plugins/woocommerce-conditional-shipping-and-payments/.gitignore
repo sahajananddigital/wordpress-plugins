@@ -1,0 +1,24 @@
+# Dependencies
+vendor/
+node_modules/
+
+# Build
+build/
+*.css.map
+*.js.map
+
+# Logs
+*.log
+debug_csp.log
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# IDE/System
+.vscode/
+.idea/
+.DS_Store
+*.zip

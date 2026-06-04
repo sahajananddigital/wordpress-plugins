@@ -1,0 +1,159 @@
+.wpinstall h2{
+	margin-left: auto;
+	//*margin-right: auto; //*//
+	text-align: center;
+    padding: 5px;
+    color: rebeccapurple;
+}
+.wpinstall {
+	padding: 20px;
+	color: black;
+	background-color: #fffff057;
+}
+
+.wpinstallhead {
+    background: #ffffff82;
+}
+.wpinstall h5{
+  	margin-left: 10px;
+	padding: 15px;
+	//*margin-right: auto; //*//
+    color: #c84040;
+}
+.wpinstall input{
+    margin: 10px;
+}
+.wpinstall p{
+    margin-left: px;
+    margin-bottom: 0em;
+}
+
+.Welcometext {
+    background: #ffffff5e;
+    padding: 15px;
+    border-bottom-style: inset;
+}
+
+.wpiinput input{
+    width: auto;
+    margin: 5px;
+}
+
+.wpisub input{
+    width: auto;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.infotableh{
+    color: rebeccapurple;
+}
+.infotableh td{
+    color: rebeccapurple;
+}
+.infotableh tr{
+    color: blue;
+}
+
+.infotableh table{
+    border-collapse: separate;
+    border-spacing: 0;
+    border-width: 2px 1 1 1px;
+    margin: 0 0 1.5em;
+    width: 100%;
+}
+.registerform h2{
+  color: rebeccapurple;
+}
+table, th, td {
+  border: 1px solid;
+}
+
+table { 
+    table-layout:fixed; //*	text-align-last: right;} */
+}
+td { 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    word-wrap: break-word;
+}
+h5 {
+    color: #000;
+}
+
+.btns {
+	width: 100%;
+    margin: 5px;
+    border-style: groove;
+    background-color: #fffff030;
+    display: flex;
+    padding: 5px;
+}
+.btns a {
+	width: 100%;
+	margin-bottom: 10px;
+	margin-left: 10px;
+	float: left;
+	display: grid !important;
+	align-content: space-around;
+	background: white;
+	padding: 10px;
+	text-align: center;
+	border-radius: 5px;
+	color: white;
+	font-weight: bold;
+	line-height: 25px;"
+}
+
+
+
+
+.tip1 strong {
+    color: black;
+}
+
+.btns a:hover {
+margin-bottom: 10px;
+	margin-left: 10px;
+	float: left;
+	display: grid !important;
+	align-content: space-around;
+	background: #6b1d95;
+	padding: 10px;
+	text-align: center;
+	border-radius: 5px;
+	color: white;
+	font-weight: bold;
+	line-height: 25px;"
+}
+.subdomian h2{
+	margin-left: auto;
+	//*margin-right: auto; //*//
+	text-align: center;
+    padding: 5px;
+    color: rebeccapurple;
+}
+.subdomian {
+	margin-left: auto;
+	padding: 5px;
+	color: rebeccapurple;
+	background-color: #fffff057;
+}
+.subdomian h5{
+  	margin-left: 10px;
+	//*margin-right: auto; //*//
+    color: #c84040;
+}
+.subdomian input{
+  padding: 10px;
+}
+.subdomian p{
+    margin-left: px;
+    margin-bottom: 0em;
+}
+
+@media only screen and (max-width: 768px) {
+  /* For mobile phones: */
+  .btns a {
+    width: 100%;
+  }
+}

@@ -1,0 +1,9 @@
+{
+    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+    "steps": [
+        {
+            "step": "runPHP",
+            "code": "<?php \necho \"PLUGINS DIR CONTS:\\n\";\nforeach(glob('/wordpress/wp-content/plugins/*', GLOB_ONLYDIR) as $d) echo \"DIR: $d\\n\";\nforeach(glob('/wordpress/wp-content/plugins/*.php') as $f) echo \"FILE: $f\\n\";\nforeach(glob('/wordpress/wp-content/plugins/*/*.php') as $f) echo \"SUBFILE: $f\\n\";"
+        }
+    ]
+}

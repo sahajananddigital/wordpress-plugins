@@ -1,0 +1,83 @@
+name: Release Plugin & Update Readme
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies & Build
+        run: |
+          npm install
+          npm run build
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev
+
+      - name: Zip Plugin
+        run: npm run zip
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ai-site-generator.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update README with Playground Link
+        run: |
+          # 1. Construct the download URL for the newly released zip
+          VERSION=${{ github.ref_name }}
+          REPO=${{ github.repository }}
+          ZIP_URL="https://github.com/$REPO/releases/download/$VERSION/ai-site-generator.zip"
+          PLAYGROUND_URL="https://playground.wordpress.net/?plugin=$ZIP_URL"
+
+          # 2. Checkout main branch to update README
+          git fetch origin
+          git checkout main || git checkout -b main
+          git pull origin main
+
+          # 3. Update the Badge/Link in README.md
+          # Replaces any existing Playground link or adds one if missing
+          # We look for a marker or just replace the specific line if we can match it.
+          # For robustness, let's look for a specific "Try Live" section or badge.
+          
+          # If README has no badge yet, we append it. If it has, we sed it.
+          # Simple approach: Replace the entire "Try Live" line or append at top.
+          
+          if grep -q "<!-- playground-badge -->" README.md; then
+             sed -i "s|.*<!-- playground-badge -->.*|[![Try Live](https://img.shields.io/badge/Try_Live-WordPress_Playground-blue?logo=wordpress&style=for-the-badge)]($PLAYGROUND_URL) <!-- playground-badge -->|" README.md
+          else
+             # Prepend to top
+             echo "[![Try Live](https://img.shields.io/badge/Try_Live-WordPress_Playground-blue?logo=wordpress&style=for-the-badge)]($PLAYGROUND_URL) <!-- playground-badge -->" | cat - README.md > temp && mv temp README.md
+          fi
+
+          # 4. Commit and Push
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add README.md
+          git commit -m "Update Playground link for version $VERSION [skip ci]"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

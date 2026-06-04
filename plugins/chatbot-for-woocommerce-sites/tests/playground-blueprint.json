@@ -1,0 +1,37 @@
+{
+    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+    "landingPage": "/wp-admin/admin.php?page=wc-chatbot",
+    "preferredVersions": {
+        "php": "8.3",
+        "wp": "latest"
+    },
+    "phpExtensionBundles": [
+        "kitchen-sink"
+    ],
+    "steps": [
+        {
+            "step": "login",
+            "username": "admin",
+            "password": "password"
+        },
+        {
+            "step": "installPlugin",
+            "pluginData": {
+                "resource": "wordpress.org/plugins",
+                "slug": "woocommerce"
+            }
+        },
+        {
+            "step": "runPHP",
+            "code": "<?php \nrequire_once '/wordpress/wp-load.php'; \ndelete_transient( '_wc_activation_redirect' ); \nupdate_option( 'woocommerce_onboarding_profile', [ 'completed' => true ] );\n\n// Activate WooCommerce\nactivate_plugin( 'woocommerce/woocommerce.php' );\n\n// Try to find and activate the chatbot plugin\n$plugins = glob('/wordpress/wp-content/plugins/*/wc-chatbot.php');\nif (!empty($plugins)) {\n    $plugin_file = str_replace('/wordpress/wp-content/plugins/', '', $plugins[0]);\n    activate_plugin( $plugin_file );\n}\n"
+        },
+        {
+            "step": "setSiteOptions",
+            "options": {
+                "wc_chatbot_enabled": "yes",
+                "wc_chatbot_greeting": "Welcome to the Playground! How can I help you today?",
+                "wc_chatbot_color": "#2271b1"
+            }
+        }
+    ]
+}

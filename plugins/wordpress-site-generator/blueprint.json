@@ -1,0 +1,32 @@
+{
+    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+    "landingPage": "/wp-admin/admin.php?page=ai-site-generator",
+    "steps": [
+        {
+            "step": "login",
+            "username": "admin",
+            "password": "password"
+        },
+        {
+            "step": "installTheme",
+            "themeData": {
+                "resource": "wordpress.org/themes",
+                "slug": "ollie"
+            },
+            "options": {
+                "activate": true
+            }
+        },
+        {
+          "step": "activatePlugin",
+          "pluginPath": "wordpress-site-generator/ai-site-generator.php"
+        },
+        {
+          "step": "setSiteOptions",
+          "options": {
+            "blogname": "Ollie AI Site Generator",
+            "ai_site_gen_mcp_endpoint": "http://127.0.0.1:11434/v1/chat/completions"
+          }
+        }
+    ]
+}

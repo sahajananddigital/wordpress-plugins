@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build Artifacts
+build/
+*.zip
+
+# Local Development
+.env
+.DS_Store
+.ollama/
+pull_log.txt
+
+# WordPress Playground
+.wp-now/
+php-error.log
+debug.log

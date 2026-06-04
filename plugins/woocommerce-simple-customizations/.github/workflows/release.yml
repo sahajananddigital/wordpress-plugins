@@ -1,0 +1,62 @@
+name: Build and Release Plugin
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Dependencies
+      run: npm install --legacy-peer-deps
+
+    - name: Build Assets
+      run: npm run build
+
+    - name: Create ZIP Artifact
+      run: |
+        # Create a temporary directory for the zip structure
+        mkdir -p release/woocommerce-simple-customizations
+        
+        # Copy necessary files/folders to the release dir
+        # We use rsync to exclude hidden files and dev directories
+        rsync -av --progress . release/woocommerce-simple-customizations \
+          --exclude 'node_modules' \
+          --exclude 'src' \
+          --exclude 'tests' \
+          --exclude '.git' \
+          --exclude '.github' \
+          --exclude 'release' \
+          --exclude 'bin' \
+          --exclude 'phpunit.xml.dist' \
+          --exclude 'webpack.config.js' \
+          --exclude '.gitignore' \
+          --exclude 'package.json' \
+          --exclude 'package-lock.json' \
+          --exclude 'composer.json' \
+          --exclude 'composer.lock'
+
+        # Zip the folder
+        cd release
+        zip -r ../woocommerce-simple-customizations.zip woocommerce-simple-customizations
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: woocommerce-simple-customizations.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

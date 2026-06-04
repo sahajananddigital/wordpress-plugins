@@ -1,0 +1,30 @@
+{
+    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+    "landingPage": "/shop/",
+    "steps": [
+        {
+            "step": "login",
+            "username": "admin",
+            "password": "password"
+        },
+        {
+            "step": "installPlugin",
+            "pluginData": {
+                "resource": "wordpress.org/plugins",
+                "slug": "woocommerce"
+            }
+        },
+        {
+            "step": "activatePlugin",
+            "pluginPath": "woocommerce/woocommerce.php"
+        },
+        {
+            "step": "activatePlugin",
+            "pluginPath": "woocommerce-simple-customizations/woocommerce-simple-customizations.php"
+        },
+        {
+            "step": "activatePlugin",
+            "pluginPath": "wsc-e2e-setup/wsc-e2e-setup.php"
+        }
+    ]
+}
