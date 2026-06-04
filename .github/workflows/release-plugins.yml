@@ -15,9 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetch all history and tags
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
       - name: Setup Git Configuration
         run: |
@@ -30,16 +35,20 @@ jobs:
         run: |
           # Fetch all remote tags
           git fetch --tags
+          MONOREPO_PATH=$(pwd)
 
-          # Scan all directories in the repository root
-          for DIR in *; do
-            # Skip if not a directory or if it is a hidden/system directory
-            if [ ! -d "$DIR" ] || [[ "$DIR" == .* ]]; then
+          # Scan all directories in the plugins/ folder
+          for DIR_PATH in plugins/*; do
+            # Skip if not a directory
+            if [ ! -d "$DIR_PATH" ]; then
               continue
             fi
 
+            # Extract the directory slug name
+            DIR=$(basename "$DIR_PATH")
+
             # Find the main PHP file containing "Plugin Name:"
-            MAIN_FILE=$(find "$DIR" -maxdepth 1 -name "*.php" -exec grep -q "Plugin Name:" {} \; -print | head -n 1)
+            MAIN_FILE=$(find "$DIR_PATH" -maxdepth 1 -name "*.php" -exec grep -q "Plugin Name:" {} \; -print | head -n 1)
             
             if [ -z "$MAIN_FILE" ]; then
               # Not a WordPress plugin
@@ -65,18 +74,46 @@ jobs:
 
             echo "🚀 New version detected! Plugin '$DIR' needs to be released at version $VERSION (Tag: $TAG)..."
 
-            # 1. Create a clean production package
+            # 1. Gutenberg / Node.js build step (if package.json exists)
+            if [ -f "$DIR_PATH/package.json" ]; then
+              echo "📦 package.json detected in $DIR_PATH. Compiling assets..."
+              cd "$DIR_PATH"
+              npm ci || npm install
+              npm run build --if-present
+              cd "$MONOREPO_PATH"
+            fi
+
+            # 2. Create a clean production package folder
             BUILD_DIR="build_dir/$DIR"
             mkdir -p "$BUILD_DIR"
-            cp -r "$DIR"/* "$BUILD_DIR/"
-            
-            # Remove testing and development configuration files
-            rm -rf "$BUILD_DIR/tests"
-            rm -rf "$BUILD_DIR/phpunit.xml.dist"
-            rm -rf "$BUILD_DIR/composer.json"
-            rm -rf "$BUILD_DIR/composer.lock"
-            rm -rf "$BUILD_DIR/vendor"
-            rm -rf "$BUILD_DIR/.git*"
+            cp -r "$DIR_PATH"/* "$BUILD_DIR/"
+
+            # 3. Apply custom .distignore file exclusions
+            if [ -f "$DIR_PATH/.distignore" ]; then
+              echo "🔍 Applying custom exclusions from .distignore in $DIR..."
+              cd "$BUILD_DIR"
+              while IFS= read -r line || [ -n "$line" ]; do
+                # Skip comments and empty lines
+                [[ "$line" =~ ^# ]] && continue
+                [[ -z "$line" ]] && continue
+                
+                # Trim leading/trailing whitespace
+                pattern=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+                
+                # Exclude matching file paths
+                find . -path "./$pattern" -exec rm -rf {} + 2>/dev/null || true
+              done < "$MONOREPO_PATH/$DIR_PATH/.distignore"
+              cd "$MONOREPO_PATH"
+            else
+              # Default exclusions if no .distignore is provided
+              echo "🔍 Applying default developer file exclusions..."
+              rm -rf "$BUILD_DIR/tests"
+              rm -rf "$BUILD_DIR/phpunit.xml.dist"
+              rm -rf "$BUILD_DIR/composer.json"
+              rm -rf "$BUILD_DIR/composer.lock"
+              rm -rf "$BUILD_DIR/vendor"
+              rm -rf "$BUILD_DIR/.git*"
+            fi
 
             # Create the release ZIP package
             ZIP_NAME="$DIR-v$VERSION.zip"
@@ -85,11 +122,11 @@ jobs:
             cd ..
             rm -rf "build_dir"
 
-            # 2. Tag the repository and push to GitHub
+            # 4. Tag the repository and push to GitHub
             git tag "$TAG"
             git push origin "$TAG"
 
-            # 3. Create the Release on GitHub using the built-in CLI
+            # 5. Create the Release on GitHub using the built-in CLI
             FRIENDLY_NAME=$(echo "$DIR" | sed -r 's/-/ /g' | awk '{for(i=1;i<=NF;i++){$i=toupper(substr($i,1,1)) substr($i,2)}}1')
             RELEASE_NAME="$FRIENDLY_NAME v$VERSION"
             

@@ -40,10 +40,10 @@ classDiagram
 ```
 
 ### Components
-1. **[multisite-subsite-admin-user-editor.php](file:///C:/Users/vanpa/OneDrive/Documents/github/wordpress-plugins/multisite-subsite-admin-user-editor/multisite-subsite-admin-user-editor.php):** Bootstrapper. Declares standard WP headers and registers a fallback PSR-4 autoloader that maps PascalCase namespaces to standard WordPress `class-{slug}.php` structures.
-2. **[includes/class-plugin.php](file:///C:/Users/vanpa/OneDrive/Documents/github/wordpress-plugins/multisite-subsite-admin-user-editor/includes/class-plugin.php):** Main class (Singleton) that orchestrates services, checking if the environment is a WordPress Multisite instance.
-3. **[includes/class-capability-manager.php](file:///C:/Users/vanpa/OneDrive/Documents/github/wordpress-plugins/multisite-subsite-admin-user-editor/includes/class-capability-manager.php):** Intercepts low-level WordPress capabilities. It overrides `edit_user` checks, performs security evaluations, and blocks `delete_*` and `create_*` capability requests.
-4. **[includes/class-security-gatekeeper.php](file:///C:/Users/vanpa/OneDrive/Documents/github/wordpress-plugins/multisite-subsite-admin-user-editor/includes/class-security-gatekeeper.php):** High-level security shield on admin dashboard controllers. Intercepts screen loading before POST requests or render cycles execute.
+1. **[multisite-subsite-admin-user-editor.php](file:///C:/Users/vanpa/OneDrive/Documents/github/wordpress-plugins/plugins/multisite-subsite-admin-user-editor/multisite-subsite-admin-user-editor.php):** Bootstrapper. Declares standard WP headers and registers a fallback PSR-4 autoloader that maps PascalCase namespaces to standard WordPress `class-{slug}.php` structures.
+2. **[includes/class-plugin.php](file:///C:/Users/vanpa/OneDrive/Documents/github/wordpress-plugins/plugins/multisite-subsite-admin-user-editor/includes/class-plugin.php):** Main class (Singleton) that orchestrates services, checking if the environment is a WordPress Multisite instance.
+3. **[includes/class-capability-manager.php](file:///C:/Users/vanpa/OneDrive/Documents/github/wordpress-plugins/plugins/multisite-subsite-admin-user-editor/includes/class-capability-manager.php):** Intercepts low-level WordPress capabilities. It overrides `edit_user` checks, performs security evaluations, and blocks `delete_*` and `create_*` capability requests.
+4. **[includes/class-security-gatekeeper.php](file:///C:/Users/vanpa/OneDrive/Documents/github/wordpress-plugins/plugins/multisite-subsite-admin-user-editor/includes/class-security-gatekeeper.php):** High-level security shield on admin dashboard controllers. Intercepts screen loading before POST requests or render cycles execute.
 
 ---
 

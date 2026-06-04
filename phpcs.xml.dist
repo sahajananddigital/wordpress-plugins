@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<ruleset name="WordPress Monorepo Standard">
+    <description>WordPress Coding Standards for all plugins in the monorepo.</description>
+
+    <!-- Lint PHP files only -->
+    <arg name="extensions" value="php"/>
+    
+    <!-- Show progress, show sniff names, and use colors -->
+    <arg value="ps"/>
+    <arg name="colors"/>
+
+    <!-- Exclude external dependencies and system paths -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>\.git/*</exclude-pattern>
+    <exclude-pattern>\.github/*</exclude-pattern>
+
+    <!-- Include WordPress Coding Standards ruleset -->
+    <rule ref="WordPress"/>
+
+    <!-- Global namespace prefixing rules (can be customized per plugin or expanded) -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <value>wppd</value>
+                <value>ms_user_editor</value>
+                <value>sd_onetime</value>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Verify PHP compatibility (defaulting to PHP 7.4 minimum compatibility) -->
+    <config name="testVersion" value="7.4-"/>
+    <rule ref="PHPCompatibility"/>
+</ruleset>
