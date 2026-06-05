@@ -1,0 +1,37 @@
+{
+  "name": "gitsupport-engine",
+  "version": "1.0.0",
+  "description": "WordPress Support Engine integrated with GitHub & AI Triage",
+  "author": "Staff WordPress Engineer",
+  "license": "GPL-2.0-or-later",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "wp-scripts build",
+    "check-engines": "wp-scripts check-engines",
+    "check-licenses": "wp-scripts check-licenses",
+    "format": "wp-scripts format",
+    "lint:css": "wp-scripts lint-css",
+    "lint:js": "wp-scripts lint-js",
+    "packages-update": "wp-scripts packages-update",
+    "plugin-zip": "wp-scripts plugin-zip",
+    "start": "wp-scripts start",
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop",
+    "test:e2e": "playwright test",
+    "test:phpunit": "wp-env run tests-cli \"phpunit\"",
+    "test:unit": "wp-scripts test-unit-js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@wordpress/e2e-test-utils-playwright": "^0.9.0",
+    "@wordpress/env": "^10.0.0",
+    "@wordpress/scripts": "^27.0.0"
+  },
+  "dependencies": {
+    "@wordpress/api-fetch": "^6.0.0",
+    "@wordpress/components": "^26.0.0",
+    "@wordpress/dom-ready": "^3.0.0",
+    "@wordpress/element": "^5.0.0",
+    "@wordpress/i18n": "^4.0.0"
+  }
+}

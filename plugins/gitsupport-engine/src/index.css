@@ -1,0 +1,108 @@
+.gitsupport-wrap {
+	margin: 20px 20px 0 0;
+	max-width: 1000px;
+}
+
+.gitsupport-wrap h1 {
+	font-size: 24px;
+	margin-bottom: 20px;
+}
+
+.gitsupport-loading {
+	margin: 50px auto;
+	text-align: center;
+	font-size: 18px;
+}
+
+.gitsupport-tabs {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	box-shadow: 0 1px 1px rgba(0,0,0,.04);
+	padding: 15px;
+}
+
+.gitsupport-tabs .components-tab-panel__tabs {
+	border-bottom: 1px solid #ccc;
+	margin-bottom: 20px;
+	display: flex;
+}
+
+.gitsupport-tabs .components-button {
+	background: none;
+	border: none;
+	border-bottom: 2px solid transparent;
+	padding: 10px 15px;
+	font-size: 14px;
+	cursor: pointer;
+	color: #50575e;
+	box-shadow: none;
+}
+
+.gitsupport-tabs .components-button.active-tab {
+	border-bottom: 2px solid #3858e9;
+	color: #101517;
+	font-weight: 600;
+}
+
+.gitsupport-tab-content {
+	margin-top: 15px;
+}
+
+.gitsupport-card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 20px;
+	margin-bottom: 30px;
+}
+
+.gitsupport-card {
+	background: #f0f0f1;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	padding: 15px;
+	text-align: center;
+}
+
+.gitsupport-card h3 {
+	margin: 0 0 10px 0;
+	font-size: 14px;
+	color: #50575e;
+}
+
+.gitsupport-card-value {
+	font-size: 28px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.gitsupport-card-value.open {
+	color: #d63638;
+}
+
+.gitsupport-card-value.resolved {
+	color: #00a32a;
+}
+
+.webhook-field {
+	margin-bottom: 20px;
+}
+
+.webhook-field strong {
+	display: block;
+	margin-bottom: 5px;
+	font-size: 14px;
+}
+
+.webhook-field pre {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	padding: 10px;
+	overflow-x: auto;
+	font-family: monospace;
+	font-size: 13px;
+	margin: 5px 0;
+}
+
+.gitsupport-settings-form .components-panel {
+	margin-bottom: 20px;
+}
