@@ -18,6 +18,7 @@ wordpress-plugins/
 │   ├── multisite-subsite-admin-user-editor/   # Subsite Admin user editor plugin
 │   ├── sd-onetime-login-link/                 # One-time login link plugin
 │   ├── sensie-google-login-with-rtcamp-plugin/# Google login integration
+│   ├── static-search-index/                   # Client-side fuzzy search index for Simply Static
 │   ├── woocommerce-conditional-shipping-and-payments/
 │   ├── woocommerce-simple-customizations/
 │   ├── wordpress-simple-customise-helper/
