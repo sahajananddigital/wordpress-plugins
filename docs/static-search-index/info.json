@@ -9,7 +9,7 @@
   "requires": "5.8",
   "tested": "6.6",
   "requires_php": "7.4",
-  "last_updated": "2026-10-23 16:44:17",
+  "last_updated": "2026-10-23 16:47:29",
   "sections": {
     "description": "Generates a client-side JSON search index and powers fuzzy search with local Fuse.js for Simply Static exports.",
     "installation": "<ol><li>Upload the plugin files to the <code>/wp-content/plugins/static-search-index</code> directory, or install via GitHub releases.</li><li>Activate the plugin through the 'Plugins' screen in WordPress.</li></ol>",
