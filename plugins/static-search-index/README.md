@@ -91,6 +91,28 @@ After export, open the static HTML and confirm search still works offline / with
 
 Fuse.js weights: **title 0.5**, **excerpt 0.3**, **content 0.2**.
 
+## 🚀 Cache Busting & Static Site Versioning (`?version=1, 2, ...`)
+
+To prevent browsers, proxies, and CDNs (such as Cloudflare, GitHub Pages, or Netlify) from serving stale cached copies of your search index and assets when updating a static site:
+
+1. **Automatic Increment**: Whenever a static site export begins in Simply Static (`ss_before_static_export`) or the index is regenerated (`save_post`, etc.), the plugin automatically increments an internal version number (`1`, `2`, `3`...).
+2. **Dynamic URL**:
+   - `search-index.json` is requested with `?version=X` (e.g. `search-index.json?version=1`).
+   - Plugin CSS and JS are enqueued with the current static version.
+   - The JSON index itself stores the current `version` for easy verification.
+3. **Whole-Site Asset Cache Busting (Optional)**:
+   You can also apply the unique static version query string to all enqueued theme and plugin styles and scripts across the static site by enabling the filter:
+   ```php
+   add_filter( 'sahajanand_static_search_cache_bust_all_assets', '__return_true' );
+   ```
+4. **Custom Version Filter**:
+   Override or provide custom versioning logic (e.g. git commit hash or timestamp):
+   ```php
+   add_filter( 'sahajanand_static_search_version', function( $version ) {
+       return 'v' . time();
+   } );
+   ```
+
 ## 🔄 Self-Hosted & Git Updates
 
 The plugin supports two methods to manage updates directly via Git:

@@ -6,7 +6,7 @@
  * Primary Branch:    main
  * Release Asset:     true
  * Description:       Generates a client-side JSON search index and powers fuzzy search with local Fuse.js for Simply Static exports.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Sahajanand Digital
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SSI_VERSION', '1.0.1' );
+define( 'SSI_VERSION', '1.0.2' );
 define( 'SSI_PLUGIN_FILE', __FILE__ );
 define( 'SSI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SSI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -38,6 +38,13 @@ final class Sahajanand_Static_Search {
 	 * @var Sahajanand_Static_Search|null
 	 */
 	private static $instance = null;
+
+	/**
+	 * Tracks whether the static version was already bumped in the current request.
+	 *
+	 * @var bool
+	 */
+	private static $version_bumped = false;
 
 	/**
 	 * Get singleton instance.
@@ -66,11 +73,20 @@ final class Sahajanand_Static_Search {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_footer', array( $this, 'render_results_container' ), 5 );
 
+		// Simply Static export triggers: bump version on export start.
+		add_action( 'ss_before_static_export', array( $this, 'on_static_export' ) );
+		add_action( 'simply_static_before_export', array( $this, 'on_static_export' ) );
+		add_action( 'simply_static_export_start', array( $this, 'on_static_export' ) );
+
 		// Simply Static: ensure the JSON index is included in the export.
 		add_filter( 'simply_static_additional_files', array( $this, 'simply_static_additional_files' ) );
 		add_filter( 'simply_static_additional_urls', array( $this, 'simply_static_additional_urls' ) );
 		add_filter( 'ss_additional_urls', array( $this, 'simply_static_additional_urls' ) );
 		add_filter( 'ss_additional_files', array( $this, 'simply_static_additional_files' ) );
+
+		// Optional filter for asset cache-busting across static site.
+		add_filter( 'style_loader_src', array( $this, 'cache_bust_asset_src' ), 999 );
+		add_filter( 'script_loader_src', array( $this, 'cache_bust_asset_src' ), 999 );
 
 		// Self-hosted update checker.
 		$this->init_updater();
@@ -109,11 +125,86 @@ final class Sahajanand_Static_Search {
 	/**
 	 * Public URL to the search index JSON file.
 	 *
+	 * @param bool $with_version Whether to append ?version= query parameter for cache busting.
 	 * @return string
 	 */
-	public function get_index_url() {
+	public function get_index_url( $with_version = true ) {
 		$upload_dir = wp_upload_dir();
-		return trailingslashit( $upload_dir['baseurl'] ) . SSI_INDEX_FILENAME;
+		$raw_url    = trailingslashit( $upload_dir['baseurl'] ) . SSI_INDEX_FILENAME;
+
+		if ( ! $with_version ) {
+			return $raw_url;
+		}
+
+		return add_query_arg( 'version', $this->get_static_version(), $raw_url );
+	}
+
+	/**
+	 * Get current static site version number (e.g. "1", "2").
+	 *
+	 * @return string
+	 */
+	public function get_static_version() {
+		$version = (int) get_option( 'ssi_static_version', 1 );
+		if ( $version < 1 ) {
+			$version = 1;
+		}
+
+		/**
+		 * Filter the unique static site version.
+		 *
+		 * @param string $version Unique version string.
+		 */
+		return (string) apply_filters( 'sahajanand_static_search_version', (string) $version );
+	}
+
+	/**
+	 * Increment static site version to invalidate browser and CDN caches.
+	 *
+	 * @return int New version number.
+	 */
+	public function bump_static_version() {
+		if ( self::$version_bumped ) {
+			return (int) get_option( 'ssi_static_version', 1 );
+		}
+		self::$version_bumped = true;
+
+		$current     = (int) get_option( 'ssi_static_version', 0 );
+		$new_version = $current + 1;
+		update_option( 'ssi_static_version', $new_version, false );
+
+		return $new_version;
+	}
+
+	/**
+	 * Triggered when Simply Static initiates a static export.
+	 */
+	public function on_static_export() {
+		$this->bump_static_version();
+		$this->regenerate_index();
+	}
+
+	/**
+	 * Optionally cache-bust enqueued theme and plugin assets for static export.
+	 *
+	 * @param string $src Asset URL.
+	 * @return string
+	 */
+	public function cache_bust_asset_src( $src ) {
+		if ( empty( $src ) || is_admin() ) {
+			return $src;
+		}
+
+		/**
+		 * Filter whether to append static version query string to all enqueued assets.
+		 *
+		 * @param bool $enable Default false.
+		 */
+		if ( ! apply_filters( 'sahajanand_static_search_cache_bust_all_assets', false ) ) {
+			return $src;
+		}
+
+		return add_query_arg( 'version', $this->get_static_version(), $src );
 	}
 
 	/**
@@ -213,8 +304,12 @@ final class Sahajanand_Static_Search {
 
 		wp_reset_postdata();
 
+		// Bump static site version for cache busting upon rebuild.
+		$this->bump_static_version();
+
 		$payload = array(
 			'generated' => gmdate( 'c' ),
+			'version'   => $this->get_static_version(),
 			'count'     => count( $entries ),
 			'items'     => $entries,
 		);
@@ -312,11 +407,13 @@ final class Sahajanand_Static_Search {
 			return;
 		}
 
+		$static_version = $this->get_static_version();
+
 		wp_enqueue_style(
 			'static-search',
 			SSI_PLUGIN_URL . 'assets/css/static-search.css',
 			array(),
-			file_exists( $style_path ) ? (string) filemtime( $style_path ) : SSI_VERSION
+			$static_version
 		);
 
 		wp_enqueue_script(
@@ -331,7 +428,7 @@ final class Sahajanand_Static_Search {
 			'static-search',
 			SSI_PLUGIN_URL . 'assets/js/static-search.js',
 			array( 'fuse-js' ),
-			file_exists( $script_path ) ? (string) filemtime( $script_path ) : SSI_VERSION,
+			$static_version,
 			true
 		);
 
@@ -339,16 +436,17 @@ final class Sahajanand_Static_Search {
 			'static-search',
 			'StaticSearchSettings',
 			array(
-				'indexUrl'   => esc_url_raw( $this->get_index_url() ),
+				'indexUrl'   => esc_url_raw( $this->get_index_url( true ) ),
 				'homeUrl'    => esc_url_raw( home_url( '/' ) ),
+				'version'    => (string) $static_version,
 				'minChars'   => 2,
 				'maxResults' => 12,
 				'i18n'       => array(
-					'placeholder' => __( 'Search…', 'static-search-index' ),
-					'noResults'   => __( 'No results found.', 'static-search-index' ),
-					'searching'   => __( 'Searching…', 'static-search-index' ),
-					'error'       => __( 'Search is temporarily unavailable.', 'static-search-index' ),
-					'resultsFor'  => __( 'Results for', 'static-search-index' ),
+					'placeholder' => __( 'Search…', 'sahajanand-static-search' ),
+					'noResults'   => __( 'No results found.', 'sahajanand-static-search' ),
+					'searching'   => __( 'Searching…', 'sahajanand-static-search' ),
+					'error'       => __( 'Search is temporarily unavailable.', 'sahajanand-static-search' ),
+					'resultsFor'  => __( 'Results for', 'sahajanand-static-search' ),
 				),
 			)
 		);
@@ -374,9 +472,14 @@ final class Sahajanand_Static_Search {
 			$urls = array_filter( array_map( 'trim', explode( "\n", (string) $urls ) ) );
 		}
 
-		$index_url = $this->get_index_url();
-		if ( $index_url && ! in_array( $index_url, $urls, true ) ) {
-			$urls[] = $index_url;
+		$raw_url = $this->get_index_url( false );
+		if ( $raw_url && ! in_array( $raw_url, $urls, true ) ) {
+			$urls[] = $raw_url;
+		}
+
+		$versioned_url = $this->get_index_url( true );
+		if ( $versioned_url && ! in_array( $versioned_url, $urls, true ) ) {
+			$urls[] = $versioned_url;
 		}
 
 		return $urls;

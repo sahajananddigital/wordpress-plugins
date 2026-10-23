@@ -4,15 +4,15 @@
   "author": "<a href=\"https://sahajananddigital.in\">Sahajanand Digital</a>",
   "author_profile": "https://sahajananddigital.in",
   "homepage": "https://github.com/sahajananddigital/wordpress-plugins",
-  "version": "1.0.1",
-  "download_url": "https://github.com/sahajananddigital/wordpress-plugins/releases/download/static-search-index/v1.0.1/static-search-index-v1.0.1.zip",
+  "version": "1.0.2",
+  "download_url": "https://github.com/sahajananddigital/wordpress-plugins/releases/download/static-search-index/v1.0.2/static-search-index-v1.0.2.zip",
   "requires": "5.8",
   "tested": "6.6",
   "requires_php": "7.4",
-  "last_updated": "2026-10-23 14:38:00",
+  "last_updated": "2026-10-23 16:44:17",
   "sections": {
     "description": "Generates a client-side JSON search index and powers fuzzy search with local Fuse.js for Simply Static exports.",
     "installation": "<ol><li>Upload the plugin files to the <code>/wp-content/plugins/static-search-index</code> directory, or install via GitHub releases.</li><li>Activate the plugin through the 'Plugins' screen in WordPress.</li></ol>",
-    "changelog": "<h4>1.0.1</h4><ul><li>Added support for public custom post types in search index generation.</li><li>Renamed main plugin classes to Sahajanand_Static_Search.</li><li>Added self-hosted update checker support.</li></ul><h4>1.0.0</h4><ul><li>Initial release.</li></ul>"
+    "changelog": "<h4>1.0.2</h4><ul><li>Added unique static version query parameter (?version=X) to avoid browser and CDN caching on static site updates.</li><li>Added Simply Static export hooks to auto-bump version on export.</li></ul><h4>1.0.1</h4><ul><li>Added support for public custom post types in search index generation.</li><li>Renamed main plugin classes to Sahajanand_Static_Search.</li><li>Added self-hosted update checker support.</li></ul><h4>1.0.0</h4><ul><li>Initial release.</li></ul>"
   }
 }

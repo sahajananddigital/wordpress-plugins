@@ -11,6 +11,7 @@
 
 	var settings = window.StaticSearchSettings || {};
 	var indexUrl = settings.indexUrl || '';
+	var version = settings.version || '';
 	var minChars = typeof settings.minChars === 'number' ? settings.minChars : 2;
 	var maxResults = typeof settings.maxResults === 'number' ? settings.maxResults : 12;
 	var i18n = settings.i18n || {};
@@ -145,7 +146,12 @@
 			return Promise.reject(new Error('Missing index URL'));
 		}
 
-		indexPromise = fetch(indexUrl, { credentials: 'same-origin' })
+		var fetchUrl = indexUrl;
+		if (version && fetchUrl.indexOf('version=') === -1 && fetchUrl.indexOf('v=') === -1) {
+			fetchUrl += (fetchUrl.indexOf('?') === -1 ? '?' : '&') + 'version=' + encodeURIComponent(version);
+		}
+
+		indexPromise = fetch(fetchUrl, { credentials: 'same-origin' })
 			.then(function (response) {
 				if (!response.ok) {
 					throw new Error('HTTP ' + response.status);
