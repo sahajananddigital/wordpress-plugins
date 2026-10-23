@@ -1,4 +1,4 @@
-# Static Search Index
+# Sahajanand Static Search Index
 
 Self-contained WordPress plugin that builds a local `search-index.json` and powers instant fuzzy search with **local Fuse.js** — designed for sites exported with the free [Simply Static](https://wordpress.org/plugins/simply-static/) plugin (no MySQL, PHP, or CDN at runtime).
 
@@ -6,7 +6,7 @@ Self-contained WordPress plugin that builds a local `search-index.json` and powe
 
 ```
 static-search-index/
-├── static-search-index.php
+├── sahajanand-static-search-index.php
 ├── README.md
 └── assets/
     ├── js/
@@ -50,9 +50,9 @@ Confirm the file header mentions **Fuse.js v6.6.x** (or newer 6.x).
 ## 2. Install the plugin in WordPress
 
 1. Copy the `static-search-index` folder into `wp-content/plugins/`.
-2. Activate **Static Search Index** in **Plugins**.
+2. Activate **Sahajanand Static Search Index** in **Plugins**.
 3. On activation, the plugin writes `wp-content/uploads/search-index.json`.
-4. The index regenerates automatically when posts/pages are saved, trashed, or deleted.
+4. The index regenerates automatically when published posts, pages, or public custom post types are saved, trashed, or deleted.
 
 ## 3. Verify live search (before export)
 

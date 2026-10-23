@@ -1,23 +1,23 @@
 <?php
 /**
- * Plugin Name:       Static Search Index
- * Plugin URI:        https://github.com/sahajanand-static-search
+ * Plugin Name:       Sahajanand Static Search
+ * Plugin URI:        https://github.com/wordpress-plugins/sahajanand-static-search
  * Description:       Generates a client-side JSON search index and powers fuzzy search with local Fuse.js for Simply Static exports.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
- * Author:            Sahajanand
+ * Author:            Sahajanand Digital
  * License:           GPL-2.0-or-later
- * Text Domain:       static-search-index
+ * Text Domain:       sahajanand-static-search
  *
- * @package Static_Search_Index
+ * @package Sahajanand_Static_Search
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SSI_VERSION', '1.0.0' );
+define( 'SSI_VERSION', '1.0.1' );
 define( 'SSI_PLUGIN_FILE', __FILE__ );
 define( 'SSI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SSI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -26,19 +26,19 @@ define( 'SSI_INDEX_FILENAME', 'search-index.json' );
 /**
  * Main plugin bootstrap.
  */
-final class Static_Search_Index {
+final class Sahajanand_Static_Search {
 
 	/**
 	 * Singleton instance.
 	 *
-	 * @var Static_Search_Index|null
+	 * @var Sahajanand_Static_Search|null
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get singleton instance.
 	 *
-	 * @return Static_Search_Index
+	 * @return Sahajanand_Static_Search
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -119,7 +119,15 @@ final class Static_Search_Index {
 			return;
 		}
 
-		$supported = array( 'post', 'page' );
+		$get_publically_queryable_post_types = get_post_types(
+			array(
+				'public' => true,
+				'_builtin' => false,
+			)
+		);
+
+		$built_in_post_types = array( 'post', 'page' );
+		$supported = array_merge( $built_in_post_types, $get_publically_queryable_post_types );
 		if ( ! in_array( $post->post_type, $supported, true ) ) {
 			return;
 		}
@@ -361,10 +369,19 @@ final class Static_Search_Index {
 /**
  * Initialize the plugin.
  *
- * @return Static_Search_Index
+ * @return Sahajanand_Static_Search
  */
-function static_search_index() {
-	return Static_Search_Index::instance();
+function sahajanand_static_search() {
+	return Sahajanand_Static_Search::instance();
 }
 
-static_search_index();
+/**
+ * Backward compatibility alias.
+ *
+ * @return Sahajanand_Static_Search
+ */
+function static_search_index() {
+	return sahajanand_static_search();
+}
+
+sahajanand_static_search();

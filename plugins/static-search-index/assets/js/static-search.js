@@ -4,7 +4,7 @@
  * Intercepts WordPress search forms, loads search-index.json,
  * and renders fuzzy matches without a PHP/MySQL backend.
  *
- * @package Static_Search_Index
+ * @package Sahajanand_Static_Search
  */
 (function () {
 	'use strict';
