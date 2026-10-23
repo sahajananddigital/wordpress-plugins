@@ -8,6 +8,8 @@ Self-contained WordPress plugin that builds a local `search-index.json` and powe
 static-search-index/
 ├── sahajanand-static-search-index.php
 ├── README.md
+├── includes/
+│   └── class-updater.php
 └── assets/
     ├── js/
     │   ├── fuse.min.js      ← must be present (see below)
@@ -88,6 +90,27 @@ After export, open the static HTML and confirm search still works offline / with
 ```
 
 Fuse.js weights: **title 0.5**, **excerpt 0.3**, **content 0.2**.
+
+## 🔄 Self-Hosted & Git Updates
+
+The plugin supports two methods to manage updates directly via Git:
+
+### 1. Native Self-Hosted Updates (No External Plugins Required)
+Implements native WordPress core update hooks ([Misha Rudrastyh approach](https://rudrastyh.com/wordpress/self-hosted-plugin-update.html)) via `site_transient_update_plugins` and `plugins_api`:
+- Automatically generates and publishes `info.json` into the `docs/static-search-index/` folder for deployment via GitHub Pages.
+- Checks the GitHub Pages endpoint (`https://sahajananddigital.github.io/wordpress-plugins/static-search-index/info.json`) for newer releases and changelog details.
+- Displays the native update notification in the WordPress Plugins screen and updates via the standard one-click WordPress updater.
+- Update cache is refreshed every 12 hours and purged automatically upon update.
+
+To customize the update manifest endpoint URL, use the filter:
+```php
+add_filter( 'sahajanand_static_search_update_url', function() {
+    return 'https://example.com/path/to/info.json';
+} );
+```
+
+### 2. Git Updater Plugin Compatibility
+Contains standard [Git Updater](https://git-updater.com/) headers in the main plugin file header (`GitHub Plugin URI`, `Primary Branch`, `Release Asset`), allowing it to be managed, installed, and updated directly via the Git Updater WordPress plugin.
 
 ## Requirements
 

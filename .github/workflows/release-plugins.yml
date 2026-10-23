@@ -83,12 +83,25 @@ jobs:
               cd "$MONOREPO_PATH"
             fi
 
-            # 2. Create a clean production package folder
+            # 2. Formulate release ZIP filename
+            ZIP_NAME="$DIR-v$VERSION.zip"
+
+            # 3. Generate or update info.json in docs/ folder for GitHub Pages deployment
+            echo "📄 Generating docs/$DIR/info.json for GitHub Pages..."
+            node "$MONOREPO_PATH/scripts/generate-info-json.js" \
+              --dir="$DIR_PATH" \
+              --version="$VERSION" \
+              --tag="$TAG" \
+              --zip="$ZIP_NAME" \
+              --repo="${{ github.repository }}" \
+              --docs="$MONOREPO_PATH/docs"
+
+            # 4. Create a clean production package folder
             BUILD_DIR="build_dir/$DIR"
             mkdir -p "$BUILD_DIR"
             cp -r "$DIR_PATH"/* "$BUILD_DIR/"
 
-            # 3. Apply custom .distignore file exclusions
+            # 5. Apply custom .distignore file exclusions
             if [ -f "$DIR_PATH/.distignore" ]; then
               echo "🔍 Applying custom exclusions from .distignore in $DIR..."
               cd "$BUILD_DIR"
@@ -116,22 +129,28 @@ jobs:
             fi
 
             # Create the release ZIP package
-            ZIP_NAME="$DIR-v$VERSION.zip"
             cd build_dir
             zip -r "../$ZIP_NAME" "$DIR"
             cd ..
             rm -rf "build_dir"
 
-            # 4. Tag the repository and push to GitHub
+            # 6. Commit docs/$DIR/info.json to main branch for GitHub Pages
+            git add "$MONOREPO_PATH/docs/$DIR/info.json"
+            if ! git diff --cached --quiet; then
+              git commit -m "chore($DIR): update docs info.json for v$VERSION [skip ci]"
+              git push origin main
+            fi
+
+            # 7. Tag the repository and push to GitHub
             git tag "$TAG"
             git push origin "$TAG"
 
-            # 5. Create the Release on GitHub using the built-in CLI
+            # 8. Create the Release on GitHub using the built-in CLI and attach info.json
             FRIENDLY_NAME=$(echo "$DIR" | sed -r 's/-/ /g' | awk '{for(i=1;i<=NF;i++){$i=toupper(substr($i,1,1)) substr($i,2)}}1')
             RELEASE_NAME="$FRIENDLY_NAME v$VERSION"
             
-            echo "📦 Publishing release and uploading $ZIP_NAME to GitHub..."
-            gh release create "$TAG" "$ZIP_NAME" \
+            echo "📦 Publishing release and uploading $ZIP_NAME and docs info.json to GitHub..."
+            gh release create "$TAG" "$ZIP_NAME" "$MONOREPO_PATH/docs/$DIR/info.json" \
               --title "$RELEASE_NAME" \
               --notes "Automated release of $FRIENDLY_NAME version $VERSION."
 

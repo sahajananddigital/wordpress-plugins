@@ -1,7 +1,10 @@
 <?php
 /**
  * Plugin Name:       Sahajanand Static Search
- * Plugin URI:        https://github.com/wordpress-plugins/sahajanand-static-search
+ * Plugin URI:        https://github.com/sahajananddigital/wordpress-plugins
+ * GitHub Plugin URI: https://github.com/sahajananddigital/wordpress-plugins
+ * Primary Branch:    main
+ * Release Asset:     true
  * Description:       Generates a client-side JSON search index and powers fuzzy search with local Fuse.js for Simply Static exports.
  * Version:           1.0.1
  * Requires at least: 5.8
@@ -22,6 +25,7 @@ define( 'SSI_PLUGIN_FILE', __FILE__ );
 define( 'SSI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SSI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SSI_INDEX_FILENAME', 'search-index.json' );
+define( 'SSI_UPDATE_INFO_URL', 'https://sahajananddigital.github.io/wordpress-plugins/static-search-index/info.json' );
 
 /**
  * Main plugin bootstrap.
@@ -67,6 +71,22 @@ final class Sahajanand_Static_Search {
 		add_filter( 'simply_static_additional_urls', array( $this, 'simply_static_additional_urls' ) );
 		add_filter( 'ss_additional_urls', array( $this, 'simply_static_additional_urls' ) );
 		add_filter( 'ss_additional_files', array( $this, 'simply_static_additional_files' ) );
+
+		// Self-hosted update checker.
+		$this->init_updater();
+	}
+
+	/**
+	 * Initialize self-hosted update checker.
+	 */
+	private function init_updater() {
+		require_once SSI_PLUGIN_DIR . 'includes/class-updater.php';
+
+		new Sahajanand_Static_Search_Updater(
+			SSI_PLUGIN_FILE,
+			SSI_VERSION,
+			SSI_UPDATE_INFO_URL
+		);
 	}
 
 	/**
@@ -119,21 +139,37 @@ final class Sahajanand_Static_Search {
 			return;
 		}
 
-		$get_publically_queryable_post_types = get_post_types(
-			array(
-				'public' => true,
-				'_builtin' => false,
-			)
-		);
-
-		$built_in_post_types = array( 'post', 'page' );
-		$supported = array_merge( $built_in_post_types, $get_publically_queryable_post_types );
+		$supported = $this->get_supported_post_types();
 		if ( ! in_array( $post->post_type, $supported, true ) ) {
 			return;
 		}
 
 		// Rebuild for publish, update, or status transitions away from publish.
 		$this->regenerate_index();
+	}
+
+	/**
+	 * Get list of post types supported for indexing.
+	 *
+	 * @return string[]
+	 */
+	public function get_supported_post_types() {
+		$custom_types = get_post_types(
+			array(
+				'public'   => true,
+				'_builtin' => false,
+			),
+			'names'
+		);
+
+		$post_types = array_merge( array( 'post', 'page' ), array_values( $custom_types ) );
+
+		/**
+		 * Filter supported post types for search index.
+		 *
+		 * @param string[] $post_types Array of post type names.
+		 */
+		return apply_filters( 'sahajanand_static_search_post_types', array_values( array_unique( $post_types ) ) );
 	}
 
 	/**
@@ -158,7 +194,7 @@ final class Sahajanand_Static_Search {
 	public function regenerate_index() {
 		$query = new WP_Query(
 			array(
-				'post_type'              => array( 'post', 'page' ),
+				'post_type'              => $this->get_supported_post_types(),
 				'post_status'            => 'publish',
 				'posts_per_page'         => -1,
 				'orderby'                => 'modified',
