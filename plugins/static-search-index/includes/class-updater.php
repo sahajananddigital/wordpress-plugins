@@ -85,7 +85,9 @@ class Sahajanand_Static_Search_Updater {
 
 		add_filter( 'site_transient_update_plugins', array( $this, 'check_update' ) );
 		add_filter( 'plugins_api', array( $this, 'plugin_info' ), 20, 3 );
+		add_filter( 'upgrader_source_selection', array( $this, 'fix_directory_name' ), 10, 4 );
 		add_action( 'upgrader_process_complete', array( $this, 'purge_cache' ), 10, 2 );
+		add_action( 'in_plugin_update_message-' . $this->plugin_slug, array( $this, 'update_message' ), 10, 2 );
 	}
 
 	/**
@@ -104,6 +106,11 @@ class Sahajanand_Static_Search_Updater {
 
 		if ( empty( $url ) ) {
 			return false;
+		}
+
+		// Allow manual force-check via "Check Again" button in wp-admin/update-core.php.
+		if ( ! $force_check && ! empty( $_GET['force-check'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$force_check = true;
 		}
 
 		if ( ! $force_check ) {
@@ -147,7 +154,7 @@ class Sahajanand_Static_Search_Updater {
 	 * @return object
 	 */
 	public function check_update( $transient ) {
-		if ( empty( $transient->checked ) ) {
+		if ( ! is_object( $transient ) || empty( $transient->checked ) ) {
 			return $transient;
 		}
 
@@ -178,6 +185,21 @@ class Sahajanand_Static_Search_Updater {
 			}
 
 			$transient->response[ $this->plugin_slug ] = $item;
+			unset( $transient->no_update[ $this->plugin_slug ] );
+		} elseif ( $remote ) {
+			$item              = new stdClass();
+			$item->id          = $this->plugin_slug;
+			$item->slug        = ! empty( $remote->slug ) ? $remote->slug : $this->directory_slug;
+			$item->plugin      = $this->plugin_slug;
+			$item->new_version = $this->version;
+			$item->url         = ! empty( $remote->homepage ) ? $remote->homepage : '';
+			$item->package     = '';
+			$item->tested      = ! empty( $remote->tested ) ? $remote->tested : '';
+			$item->requires    = ! empty( $remote->requires ) ? $remote->requires : '';
+			$item->requires_php= ! empty( $remote->requires_php ) ? $remote->requires_php : '';
+
+			$transient->no_update[ $this->plugin_slug ] = $item;
+			unset( $transient->response[ $this->plugin_slug ] );
 		}
 
 		return $transient;
@@ -198,7 +220,7 @@ class Sahajanand_Static_Search_Updater {
 
 		if (
 			! isset( $args->slug )
-			|| ( $args->slug !== $this->directory_slug && $args->slug !== $this->plugin_slug && $args->slug !== 'static-search-index' )
+			|| ( $args->slug !== $this->directory_slug && $args->slug !== $this->plugin_slug )
 		) {
 			return $res;
 		}
@@ -234,6 +256,34 @@ class Sahajanand_Static_Search_Updater {
 	}
 
 	/**
+	 * Rename the unzipped directory to ensure it matches the plugin directory slug.
+	 *
+	 * Prevents issues where GitHub release zips unpack to a different folder name.
+	 *
+	 * @param string      $source        File source location.
+	 * @param string      $remote_source Remote source location.
+	 * @param WP_Upgrader $upgrader      Upgrader instance.
+	 * @param array       $hook_extra    Extra arguments.
+	 * @return string
+	 */
+	public function fix_directory_name( $source, $remote_source, $upgrader, $hook_extra = array() ) {
+		global $wp_filesystem;
+
+		if ( ! isset( $hook_extra['plugin'] ) || $hook_extra['plugin'] !== $this->plugin_slug ) {
+			return $source;
+		}
+
+		$correct_source = trailingslashit( $remote_source ) . $this->directory_slug . '/';
+
+		if ( $source !== $correct_source && ! empty( $wp_filesystem ) ) {
+			$wp_filesystem->move( $source, $correct_source );
+			return $correct_source;
+		}
+
+		return $source;
+	}
+
+	/**
 	 * Purge transient cache after plugin is updated.
 	 *
 	 * @param WP_Upgrader $upgrader Upgrader instance.
@@ -244,14 +294,30 @@ class Sahajanand_Static_Search_Updater {
 			isset( $options['action'], $options['type'] )
 			&& 'update' === $options['action']
 			&& 'plugin' === $options['type']
-			&& ! empty( $options['plugins'] )
 		) {
-			foreach ( $options['plugins'] as $plugin ) {
-				if ( $plugin === $this->plugin_slug ) {
-					delete_transient( $this->cache_key );
-					break;
-				}
+			$plugins = array();
+			if ( ! empty( $options['plugins'] ) && is_array( $options['plugins'] ) ) {
+				$plugins = $options['plugins'];
+			} elseif ( ! empty( $options['plugin'] ) ) {
+				$plugins = array( $options['plugin'] );
 			}
+
+			if ( empty( $plugins ) || in_array( $this->plugin_slug, $plugins, true ) ) {
+				delete_transient( $this->cache_key );
+			}
+		}
+	}
+
+	/**
+	 * Display update notice or custom message under plugin row.
+	 *
+	 * @param array  $plugin_data Plugin metadata array.
+	 * @param object $response    Update response object.
+	 */
+	public function update_message( $plugin_data, $response ) {
+		$remote = $this->get_remote_info();
+		if ( $remote && ! empty( $remote->upgrade_notice ) ) {
+			echo '</p><p class="ssi-update-notice" style="margin: 5px 0 0; color: #d63638;"><strong>' . esc_html__( 'Notice:', 'sahajanand-static-search' ) . '</strong> ' . wp_kses_post( $remote->upgrade_notice );
 		}
 	}
 }

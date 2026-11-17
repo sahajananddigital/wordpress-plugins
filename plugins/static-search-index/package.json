@@ -1,0 +1,19 @@
+{
+  "name": "sahajanand-static-search",
+  "version": "1.0.3",
+  "description": "Client-side fuzzy search powered by Fuse.js for Simply Static exports.",
+  "scripts": {
+    "test": "npm run test:php && npm run test:js",
+    "test:php": "php tests/run-tests.php",
+    "test:js": "node tests/static-search.test.js"
+  },
+  "keywords": [
+    "wordpress",
+    "static-site",
+    "simply-static",
+    "fuzzy-search",
+    "fusejs"
+  ],
+  "author": "Sahajanand Digital",
+  "license": "GPL-2.0-or-later"
+}

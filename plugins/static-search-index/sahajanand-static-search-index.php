@@ -8,9 +8,11 @@
  * Description:       Generates a client-side JSON search index and powers fuzzy search with local Fuse.js for Simply Static exports.
  * Version:           1.0.3
  * Requires at least: 5.8
+ * Tested up to:      7.1
  * Requires PHP:      7.4
  * Author:            Sahajanand Digital
  * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       sahajanand-static-search
  *
  * @package Sahajanand_Static_Search
@@ -45,6 +47,13 @@ final class Sahajanand_Static_Search {
 	 * @var bool
 	 */
 	private static $version_bumped = false;
+
+	/**
+	 * Tracks whether static export generation was already processed in the current request.
+	 *
+	 * @var bool
+	 */
+	private static $export_processed = false;
 
 	/**
 	 * Get singleton instance.
@@ -96,7 +105,21 @@ final class Sahajanand_Static_Search {
 	 * Initialize self-hosted update checker.
 	 */
 	private function init_updater() {
-		require_once SSI_PLUGIN_DIR . 'includes/class-updater.php';
+		/**
+		 * Filter whether to enable self-hosted updates.
+		 *
+		 * @param bool $enable Default true.
+		 */
+		if ( ! apply_filters( 'sahajanand_static_search_enable_self_hosted_updates', true ) ) {
+			return;
+		}
+
+		$updater_file = SSI_PLUGIN_DIR . 'includes/class-updater.php';
+		if ( ! file_exists( $updater_file ) ) {
+			return;
+		}
+
+		require_once $updater_file;
 
 		new Sahajanand_Static_Search_Updater(
 			SSI_PLUGIN_FILE,
@@ -178,8 +201,16 @@ final class Sahajanand_Static_Search {
 
 	/**
 	 * Triggered when Simply Static initiates a static export.
+	 *
+	 * Deduplicates multiple Simply Static hooks in the same export request
+	 * to prevent redundant version bumping and index rebuilding.
 	 */
 	public function on_static_export() {
+		if ( self::$export_processed ) {
+			return;
+		}
+		self::$export_processed = true;
+
 		$this->bump_static_version();
 		$this->regenerate_index();
 	}
@@ -242,13 +273,16 @@ final class Sahajanand_Static_Search {
 	/**
 	 * Get list of post types supported for indexing.
 	 *
+	 * Only includes public post types that are not explicitly excluded from search.
+	 *
 	 * @return string[]
 	 */
 	public function get_supported_post_types() {
 		$custom_types = get_post_types(
 			array(
-				'public'   => true,
-				'_builtin' => false,
+				'public'              => true,
+				'exclude_from_search' => false,
+				'_builtin'            => false,
 			),
 			'names'
 		);
@@ -283,18 +317,25 @@ final class Sahajanand_Static_Search {
 	 * @return bool True on success.
 	 */
 	public function regenerate_index() {
-		$query = new WP_Query(
-			array(
-				'post_type'              => $this->get_supported_post_types(),
-				'post_status'            => 'publish',
-				'posts_per_page'         => -1,
-				'orderby'                => 'modified',
-				'order'                  => 'DESC',
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => true,
-			)
+		$default_args = array(
+			'post_type'              => $this->get_supported_post_types(),
+			'post_status'            => 'publish',
+			'posts_per_page'         => -1,
+			'orderby'                => 'modified',
+			'order'                  => 'DESC',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => true,
 		);
+
+		/**
+		 * Filter the WP_Query arguments used to generate the static search index.
+		 *
+		 * @param array<string, mixed> $default_args WP_Query arguments.
+		 */
+		$query_args = apply_filters( 'sahajanand_static_search_query_args', $default_args );
+
+		$query = new WP_Query( $query_args );
 
 		$entries = array();
 
@@ -449,6 +490,10 @@ final class Sahajanand_Static_Search {
 	 * @return string Relative path beginning with /.
 	 */
 	public function to_relative_path( $url, $post = null ) {
+		if ( empty( $url ) || ! is_string( $url ) ) {
+			return '/';
+		}
+
 		$home = home_url();
 
 		// Parse WordPress home path (e.g. "/shajananddigital" when installed in a subfolder).
@@ -559,7 +604,7 @@ final class Sahajanand_Static_Search {
 	 */
 	public function render_results_container() {
 		?>
-		<div id="static-search-results" class="static-search-results" hidden role="listbox" aria-label="<?php esc_attr_e( 'Search results', 'static-search-index' ); ?>"></div>
+		<div id="static-search-results" class="static-search-results" hidden role="listbox" aria-label="<?php esc_attr_e( 'Search results', 'sahajanand-static-search' ); ?>"></div>
 		<?php
 	}
 
@@ -614,15 +659,6 @@ final class Sahajanand_Static_Search {
  */
 function sahajanand_static_search() {
 	return Sahajanand_Static_Search::instance();
-}
-
-/**
- * Backward compatibility alias.
- *
- * @return Sahajanand_Static_Search
- */
-function static_search_index() {
-	return sahajanand_static_search();
 }
 
 sahajanand_static_search();

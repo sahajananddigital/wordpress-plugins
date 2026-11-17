@@ -8,14 +8,22 @@ Self-contained WordPress plugin that builds a local `search-index.json` and powe
 static-search-index/
 ├── sahajanand-static-search-index.php
 ├── README.md
+├── package.json
+├── phpunit.xml.dist
 ├── includes/
 │   └── class-updater.php
-└── assets/
-    ├── js/
-    │   ├── fuse.min.js      ← must be present (see below)
-    │   └── static-search.js
-    └── css/
-        └── static-search.css
+├── assets/
+│   ├── js/
+│   │   ├── fuse.min.js      ← must be present (see below)
+│   │   └── static-search.js
+│   └── css/
+│       └── static-search.css
+└── tests/
+    ├── bootstrap.php
+    ├── run-tests.php
+    ├── test-static-search.php
+    ├── test-updater.php
+    └── static-search.test.js
 ```
 
 ## 1. Install Fuse.js locally (required)
@@ -152,6 +160,38 @@ add_filter( 'sahajanand_static_search_update_url', function() {
 
 ### 2. Git Updater Plugin Compatibility
 Contains standard [Git Updater](https://git-updater.com/) headers in the main plugin file header (`GitHub Plugin URI`, `Primary Branch`, `Release Asset`), allowing it to be managed, installed, and updated directly via the Git Updater WordPress plugin.
+
+## 🧪 Testing
+
+The plugin includes unit test suites for both PHP core functionality and client-side JavaScript search resolution.
+
+### Run All Tests
+```bash
+npm test
+```
+
+### Run PHP Tests Standalone (Zero Dependencies)
+```bash
+php tests/run-tests.php
+```
+Or via npm:
+```bash
+npm run test:php
+```
+
+### Run Frontend JavaScript Tests
+```bash
+node tests/static-search.test.js
+```
+Or via npm:
+```bash
+npm run test:js
+```
+
+### PHPUnit (CI / Local)
+```bash
+phpunit
+```
 
 ## Requirements
 

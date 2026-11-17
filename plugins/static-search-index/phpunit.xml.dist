@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+	bootstrap="tests/bootstrap.php"
+	colors="true"
+	backupGlobals="false"
+	verbose="true">
+	<testsuites>
+		<testsuite name="Static Search Index Test Suite">
+			<directory prefix="test-" suffix=".php">./tests/</directory>
+		</testsuite>
+	</testsuites>
+	<coverage processUncoveredFiles="true">
+		<include>
+			<file>./sahajanand-static-search-index.php</file>
+			<directory suffix=".php">./includes/</directory>
+		</include>
+	</coverage>
+</phpunit>
