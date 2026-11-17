@@ -236,7 +236,7 @@
 
 			var link = document.createElement('a');
 			link.className = 'static-search-results__link';
-			link.href = item.permalink || '#';
+			link.href = resolvePermalink(item.permalink);
 
 			var title = document.createElement('span');
 			title.className = 'static-search-results__title';
@@ -258,6 +258,60 @@
 		});
 
 		resultsEl.appendChild(list);
+	}
+
+	/**
+	 * Resolve permalink for both static site and dynamic WP environments.
+	 *
+	 * Ensures staging subdirectories (e.g. /shajananddigital) are not leaked
+	 * into search results on the static site (e.g. shajananddigital.in), while
+	 * still resolving properly when tested on the dynamic staging site.
+	 *
+	 * @param {string} permalink
+	 * @return {string}
+	 */
+	function resolvePermalink(permalink) {
+		if (!permalink) {
+			return '#';
+		}
+
+		// If already an absolute URL (http:// or https://), return as-is.
+		if (/^https?:\/\//i.test(permalink)) {
+			return permalink;
+		}
+
+		var cleanPath = '/' + permalink.replace(/^\/+/, '');
+		var homeUrl = (settings.homeUrl || '').trim();
+
+		if (homeUrl) {
+			try {
+				var homeParsed = new URL(homeUrl, window.location.origin);
+				var homePath = homeParsed.pathname.replace(/\/+$/, '');
+
+				if (homePath) {
+					if (homeParsed.origin === window.location.origin) {
+						// On dynamic staging site (same origin and subfolder): preserve subfolder for local preview.
+						if (cleanPath.indexOf(homePath + '/') !== 0 && cleanPath !== homePath) {
+							return homePath + cleanPath;
+						}
+					} else {
+						// On static export site (different origin): ensure origin staging subfolder is stripped.
+						if (cleanPath.indexOf(homePath + '/') === 0) {
+							cleanPath = cleanPath.substring(homePath.length);
+							if (!cleanPath || cleanPath.charAt(0) !== '/') {
+								cleanPath = '/' + cleanPath;
+							}
+						} else if (cleanPath === homePath) {
+							cleanPath = '/';
+						}
+					}
+				}
+			} catch (e) {
+				// URL parsing failed or unsupported; return cleanPath.
+			}
+		}
+
+		return cleanPath;
 	}
 
 	/**

@@ -91,6 +91,25 @@ After export, open the static HTML and confirm search still works offline / with
 
 Fuse.js weights: **title 0.5**, **excerpt 0.3**, **content 0.2**.
 
+## 🌐 Subdirectory & Destination URL Handling
+
+When your WordPress staging environment is installed in a subdirectory (for example `https://projects.sahajananddigital.in/shajananddigital`) and you export to a static root domain (such as `https://shajananddigital.in`):
+
+1. **Automatic Subdirectory Stripping**: The plugin automatically detects and strips the WordPress staging subfolder from all indexed permalinks, producing clean root-relative paths like `/my-article/` instead of `/shajananddigital/my-article/`.
+2. **Simply Static Destination URL Detection**: If Simply Static has a custom Destination URL configured (e.g. GitHub Pages `https://username.github.io/my-repo/`), the destination subpath is automatically applied (`/my-repo/my-article/`).
+3. **Dual Environment Resolver**: In the browser, `static-search.js` automatically resolves links relative to the active environment — preserving subfolder paths when tested locally on the dynamic staging site, and ensuring clean root paths on the static export.
+4. **Developer Filters**:
+   - `sahajanand_static_search_destination_url`: Override or customize the static destination URL.
+   - `sahajanand_static_search_relative_path`: Customize the computed relative path for any post permalink.
+   - `sahajanand_static_search_entry`: Customize or append data to the JSON index entry before saving.
+
+```php
+// Example: Customize static destination URL
+add_filter( 'sahajanand_static_search_destination_url', function( $dest_url ) {
+    return 'https://shajananddigital.in';
+} );
+```
+
 ## 🚀 Cache Busting & Static Site Versioning (`?version=1, 2, ...`)
 
 To prevent browsers, proxies, and CDNs (such as Cloudflare, GitHub Pages, or Netlify) from serving stale cached copies of your search index and assets when updating a static site:

@@ -6,7 +6,7 @@
  * Primary Branch:    main
  * Release Asset:     true
  * Description:       Generates a client-side JSON search index and powers fuzzy search with local Fuse.js for Simply Static exports.
- * Version:           1.0.2
+ * Version:           1.0.3
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Sahajanand Digital
@@ -20,12 +20,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SSI_VERSION', '1.0.2' );
+define( 'SSI_VERSION', '1.0.3' );
 define( 'SSI_PLUGIN_FILE', __FILE__ );
 define( 'SSI_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SSI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'SSI_INDEX_FILENAME', 'search-index.json' );
-define( 'SSI_UPDATE_INFO_URL', 'https://sahajananddigital.github.io/wordpress-plugins/static-search-index/info.json' );
+define( 'SSI_UPDATE_INFO_URL', 'https://opensource.sahajananddigital.in/wordpress-plugins/static-search-index/info.json' );
 
 /**
  * Main plugin bootstrap.
@@ -341,7 +341,7 @@ final class Sahajanand_Static_Search {
 	 */
 	private function build_entry( WP_Post $post ) {
 		$permalink = get_permalink( $post );
-		$relative  = $this->to_relative_path( $permalink );
+		$relative  = $this->to_relative_path( $permalink, $post );
 
 		$raw_content = $post->post_content;
 		$raw_content = strip_shortcodes( $raw_content );
@@ -366,7 +366,7 @@ final class Sahajanand_Static_Search {
 			}
 		}
 
-		return array(
+		$entry = array(
 			'id'         => (int) $post->ID,
 			'title'      => html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ),
 			'permalink'  => $relative,
@@ -375,24 +375,126 @@ final class Sahajanand_Static_Search {
 			'categories' => $categories,
 			'type'       => $post->post_type,
 		);
+
+		/**
+		 * Filter the search index entry for a post.
+		 *
+		 * @param array<string, mixed> $entry Search index entry.
+		 * @param WP_Post              $post  Post object.
+		 */
+		return apply_filters( 'sahajanand_static_search_entry', $entry, $post );
 	}
 
 	/**
-	 * Convert an absolute permalink to a site-relative path.
+	 * Get Simply Static destination URL if configured.
 	 *
-	 * @param string $url Absolute URL.
-	 * @return string Relative path beginning with /.
+	 * @return string Destination URL or empty string.
 	 */
-	private function to_relative_path( $url ) {
-		$home = home_url( '/' );
-		$path = wp_make_link_relative( $url );
+	public function get_destination_url() {
+		$destination_url = '';
 
-		if ( empty( $path ) || 0 !== strpos( $path, '/' ) ) {
-			$path = str_replace( $home, '/', $url );
-			$path = '/' . ltrim( (string) $path, '/' );
+		// 1. Check Simply_Static\Options class if available.
+		if ( class_exists( '\Simply_Static\Options' ) ) {
+			try {
+				$options = \Simply_Static\Options::instance();
+				if ( method_exists( $options, 'get_destination_url' ) ) {
+					$destination_url = (string) $options->get_destination_url();
+				} elseif ( method_exists( $options, 'get' ) ) {
+					$destination_url = (string) $options->get( 'destination_url' );
+				}
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				// Fall back to options table.
+			}
 		}
 
-		return $path;
+		// 2. Check WordPress options table for Simply Static settings.
+		if ( empty( $destination_url ) ) {
+			$ss_options = get_option( 'simply-static' );
+			if ( is_array( $ss_options ) && ! empty( $ss_options['destination_url'] ) ) {
+				$destination_url = (string) $ss_options['destination_url'];
+			}
+		}
+
+		if ( empty( $destination_url ) ) {
+			$ss_options_alt = get_option( 'simply_static_options' );
+			if ( is_array( $ss_options_alt ) && ! empty( $ss_options_alt['destination_url'] ) ) {
+				$destination_url = (string) $ss_options_alt['destination_url'];
+			}
+		}
+
+		if ( empty( $destination_url ) ) {
+			$single_dest = get_option( 'simply_static_destination_url' );
+			if ( ! empty( $single_dest ) && is_string( $single_dest ) ) {
+				$destination_url = $single_dest;
+			}
+		}
+
+		/**
+		 * Filter the destination URL for static search index permalinks.
+		 *
+		 * @param string $destination_url Destination URL or empty string.
+		 */
+		return (string) apply_filters( 'sahajanand_static_search_destination_url', $destination_url );
+	}
+
+	/**
+	 * Convert an absolute permalink to a clean site-relative path for static search.
+	 *
+	 * Strips WordPress installation subdirectories (e.g. /shajananddigital) so
+	 * that exported static sites on root domains (e.g. shajananddigital.in)
+	 * don't retain staging subdirectories in search results.
+	 *
+	 * @param string       $url  Absolute URL.
+	 * @param WP_Post|null $post Post object if available.
+	 * @return string Relative path beginning with /.
+	 */
+	public function to_relative_path( $url, $post = null ) {
+		$home = home_url();
+
+		// Parse WordPress home path (e.g. "/shajananddigital" when installed in a subfolder).
+		$home_path = (string) parse_url( $home, PHP_URL_PATH );
+		$home_path = '/' . trim( $home_path, '/' );
+		if ( '/' === $home_path ) {
+			$home_path = '';
+		}
+
+		// Parse permalink components.
+		$url_path = (string) parse_url( $url, PHP_URL_PATH );
+		$query    = parse_url( $url, PHP_URL_QUERY );
+		$fragment = parse_url( $url, PHP_URL_FRAGMENT );
+
+		// Strip WordPress installation subfolder if present at the start of permalink path.
+		if ( '' !== $home_path && 0 === strpos( $url_path, $home_path ) ) {
+			$url_path = substr( $url_path, strlen( $home_path ) );
+		}
+
+		$url_path = '/' . ltrim( (string) $url_path, '/' );
+
+		// If Simply Static has a destination URL configured with a subfolder (e.g. GitHub Pages /repo/).
+		$dest_url = $this->get_destination_url();
+		if ( ! empty( $dest_url ) ) {
+			$dest_path = (string) parse_url( $dest_url, PHP_URL_PATH );
+			$dest_path = '/' . trim( $dest_path, '/' );
+			if ( '/' !== $dest_path && '' !== $dest_path ) {
+				$url_path = $dest_path . '/' . ltrim( $url_path, '/' );
+			}
+		}
+
+		if ( ! empty( $query ) ) {
+			$url_path .= '?' . $query;
+		}
+		if ( ! empty( $fragment ) ) {
+			$url_path .= '#' . $fragment;
+		}
+
+		/**
+		 * Filter the calculated relative path.
+		 *
+		 * @param string       $url_path Calculated relative path.
+		 * @param string       $url      Original URL.
+		 * @param WP_Post|null $post     Post object if available.
+		 */
+		return (string) apply_filters( 'sahajanand_static_search_relative_path', $url_path, $url, $post );
 	}
 
 	/**
