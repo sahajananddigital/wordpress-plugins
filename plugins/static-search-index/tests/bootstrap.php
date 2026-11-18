@@ -138,6 +138,12 @@ if ( ! function_exists( 'trailingslashit' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_parse_url' ) ) {
+	function wp_parse_url( $url, $component = -1 ) {
+		return parse_url( (string) $url, $component );
+	}
+}
+
 if ( ! function_exists( 'add_query_arg' ) ) {
 	function add_query_arg( ...$args ) {
 		if ( count( $args ) === 2 && is_string( $args[0] ) && is_string( $args[1] ) ) {

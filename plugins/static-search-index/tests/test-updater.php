@@ -161,4 +161,37 @@ class Test_Sahajanand_Static_Search_Updater {
 
 		assert( ! isset( $wp_mock_transients[ $cache_key ] ), 'Transient must be purged after update' );
 	}
+
+	public function test_update_plugins_hostname_filter() {
+		global $wp_mock_remote_response;
+
+		$remote_data = (object) array(
+			'name'         => 'Sahajanand Static Search',
+			'version'      => '1.2.0',
+			'download_url' => 'https://example.com/static-search-index-1.2.0.zip',
+			'homepage'     => 'https://example.com/plugin',
+		);
+
+		$wp_mock_remote_response = array(
+			'response' => array( 'code' => 200 ),
+			'body'     => json_encode( $remote_data ),
+		);
+
+		$plugin_data = array(
+			'Name'      => 'Sahajanand Static Search',
+			'Version'   => '1.0.3',
+			'UpdateURI' => 'https://opensource.sahajananddigital.in/wordpress-plugins/static-search-index/',
+		);
+
+		$result = $this->updater->filter_update_plugins_host(
+			false,
+			$plugin_data,
+			'static-search-index/sahajanand-static-search-index.php'
+		);
+
+		assert( is_array( $result ), 'Result must be an array' );
+		assert( '1.2.0' === $result['version'], 'New version must be 1.2.0' );
+		assert( 'https://example.com/static-search-index-1.2.0.zip' === $result['package'], 'Package URL must match' );
+		assert( 'static-search-index' === $result['slug'], 'Slug must match directory slug' );
+	}
 }

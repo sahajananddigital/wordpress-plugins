@@ -88,6 +88,12 @@ class Sahajanand_Static_Search_Updater {
 		add_filter( 'upgrader_source_selection', array( $this, 'fix_directory_name' ), 10, 4 );
 		add_action( 'upgrader_process_complete', array( $this, 'purge_cache' ), 10, 2 );
 		add_action( 'in_plugin_update_message-' . $this->plugin_slug, array( $this, 'update_message' ), 10, 2 );
+
+		// Support WordPress 5.8+ Update URI hostname hook.
+		$host = wp_parse_url( $this->update_url, PHP_URL_HOST );
+		if ( $host ) {
+			add_filter( 'update_plugins_' . $host, array( $this, 'filter_update_plugins_host' ), 10, 4 );
+		}
 	}
 
 	/**
@@ -319,5 +325,43 @@ class Sahajanand_Static_Search_Updater {
 		if ( $remote && ! empty( $remote->upgrade_notice ) ) {
 			echo '</p><p class="ssi-update-notice" style="margin: 5px 0 0; color: #d63638;"><strong>' . esc_html__( 'Notice:', 'sahajanand-static-search' ) . '</strong> ' . wp_kses_post( $remote->upgrade_notice );
 		}
+	}
+
+	/**
+	 * WordPress 5.8+ Update URI hostname filter.
+	 *
+	 * Hooked dynamically to `update_plugins_{$hostname}` where $hostname matches
+	 * the domain in the plugin's `Update URI` header.
+	 *
+	 * @param array|false $update      Current update data or false.
+	 * @param array       $plugin_data Plugin headers.
+	 * @param string      $plugin_file Plugin file path relative to plugins dir.
+	 * @param string[]    $locales     Installed locales.
+	 * @return array|false
+	 */
+	public function filter_update_plugins_host( $update, $plugin_data, $plugin_file, $locales = array() ) {
+		if ( $plugin_file !== $this->plugin_slug ) {
+			return $update;
+		}
+
+		$remote = $this->get_remote_info();
+		if (
+			$remote
+			&& version_compare( $this->version, $remote->version, '<' )
+			&& ( empty( $remote->requires ) || version_compare( $remote->requires, get_bloginfo( 'version' ), '<=' ) )
+			&& ( empty( $remote->requires_php ) || version_compare( $remote->requires_php, PHP_VERSION, '<=' ) )
+		) {
+			return array(
+				'id'          => ! empty( $plugin_data['UpdateURI'] ) ? $plugin_data['UpdateURI'] : $this->update_url,
+				'slug'        => $this->directory_slug,
+				'version'     => $remote->version,
+				'url'         => ! empty( $remote->homepage ) ? $remote->homepage : ( ! empty( $remote->download_url ) ? $remote->download_url : '' ),
+				'package'     => ! empty( $remote->download_url ) ? $remote->download_url : '',
+				'tested'      => ! empty( $remote->tested ) ? $remote->tested : '',
+				'requires_php'=> ! empty( $remote->requires_php ) ? $remote->requires_php : '',
+			);
+		}
+
+		return $update;
 	}
 }

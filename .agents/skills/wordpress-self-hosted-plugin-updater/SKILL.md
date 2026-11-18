@@ -23,7 +23,8 @@ The update system consists of two parts:
    - Hosts or links to the downloadable `.zip` release archive.
    - Hosted publicly on GitHub Pages (`https://<org>.github.io/<repo>/<plugin>/info.json`) with ZIPs attached to GitHub Releases.
 2. **Client Plugin (Local WordPress)**:
-   - Uses native WordPress filters (`site_transient_update_plugins` and `plugins_api`).
+   - Declares the **`Update URI`** header (WordPress 5.8+) to prevent updates from being hijacked by same-name plugins on WordPress.org.
+   - Uses native WordPress filters (`site_transient_update_plugins`, `update_plugins_{$hostname}`, and `plugins_api`).
    - Uses `upgrader_process_complete` to purge transient cache upon update.
    - Uses `upgrader_source_selection` to guarantee correct folder naming on unzip.
    - Employs WordPress transients with automatic cache-busting when admins click **"Check Again"** (`?force-check=1`).
@@ -32,11 +33,12 @@ The update system consists of two parts:
 
 ## 📋 Implementation Checklist
 
-- [ ] **1. Metadata Manifest (`info.json`)**: Hosted and accessible via HTTPS.
-- [ ] **2. Updater Class (`class-updater.php`)**: Included in the plugin's `includes/` directory.
-- [ ] **3. Plugin Bootstrap**: Instantiated in the main plugin file with file path, version, and info URL.
-- [ ] **4. Packaging & Folder Structure**: Release ZIP contains `<plugin-slug>/` as its single root folder.
-- [ ] **5. Automation Workflow**: GitHub Actions workflow automatically updates `info.json` and attaches the ZIP to a release when versions bump.
+- [ ] **1. Plugin Header (`Update URI`)**: Declared in main plugin header (`Update URI: https://...`) to prevent WordPress.org spoofing.
+- [ ] **2. Metadata Manifest (`info.json`)**: Hosted and accessible via HTTPS.
+- [ ] **3. Updater Class (`class-updater.php`)**: Included in the plugin's `includes/` directory.
+- [ ] **4. Plugin Bootstrap**: Instantiated in the main plugin file with file path, version, and info URL.
+- [ ] **5. Packaging & Folder Structure**: Release ZIP contains `<plugin-slug>/` as its single root folder.
+- [ ] **6. Automation Workflow**: GitHub Actions workflow automatically updates `info.json` and attaches the ZIP to a release when versions bump.
 
 ---
 
@@ -109,6 +111,12 @@ Key responsibilities of the class:
 In your main plugin file (e.g. `my-plugin/my-plugin.php`):
 
 ```php
+/**
+ * Plugin Name: My Plugin
+ * Version:     1.0.1
+ * Update URI:  https://sahajananddigital.github.io/wordpress-plugins/my-plugin/
+ */
+
 define( 'MY_PLUGIN_VERSION', '1.0.1' );
 define( 'MY_PLUGIN_FILE', __FILE__ );
 define( 'MY_PLUGIN_UPDATE_URL', 'https://sahajananddigital.github.io/wordpress-plugins/my-plugin/info.json' );

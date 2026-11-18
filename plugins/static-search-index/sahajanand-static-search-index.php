@@ -2,6 +2,7 @@
 /**
  * Plugin Name:       Sahajanand Static Search
  * Plugin URI:        https://github.com/sahajananddigital/wordpress-plugins
+ * Update URI:        https://opensource.sahajananddigital.in/wordpress-plugins/static-search-index/
  * GitHub Plugin URI: https://github.com/sahajananddigital/wordpress-plugins
  * Primary Branch:    main
  * Release Asset:     true
