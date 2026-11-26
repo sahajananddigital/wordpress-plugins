@@ -1,4 +1,10 @@
 <?php
+/**
+ * Outbound Mailer for GitSupport Engine.
+ *
+ * @package GitSupport\Engine
+ */
+
 namespace GitSupport\Engine\Outbound;
 
 /**

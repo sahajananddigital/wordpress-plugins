@@ -1,4 +1,10 @@
 <?php
+/**
+ * Database schema and operations for GitSupport Engine.
+ *
+ * @package GitSupport\Engine
+ */
+
 namespace GitSupport\Engine;
 
 /**
@@ -21,7 +27,7 @@ class Database {
 	 */
 	public static function activate() {
 		global $wpdb;
-		$table_name = self::get_table_name();
+		$table_name      = self::get_table_name();
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE $table_name (
@@ -105,7 +111,7 @@ class Database {
 			array( '%s' )
 		);
 
-		return $updated !== false;
+		return false !== $updated;
 	}
 
 	/**
@@ -118,9 +124,10 @@ class Database {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM $table_name WHERE email_message_id = %s LIMIT 1",
+				"SELECT * FROM {$table_name} WHERE email_message_id = %s LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				sanitize_text_field( $email_message_id )
 			)
 		);
@@ -138,9 +145,10 @@ class Database {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM $table_name WHERE github_issue_id = %s LIMIT 1",
+				"SELECT * FROM {$table_name} WHERE github_issue_id = %s LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				sanitize_text_field( $github_issue_id )
 			)
 		);
@@ -157,8 +165,8 @@ class Database {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
-		// Check if table exists first to avoid crash if called before activation
-		if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name ) ) !== $table_name ) {
+		// Check if table exists first to avoid crash if called before activation.
+		if ( $table_name !== $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) ) {
 			return array(
 				'total_tickets'          => 0,
 				'open_tickets'           => 0,
@@ -167,15 +175,17 @@ class Database {
 			);
 		}
 
-		$total = (int) $wpdb->get_var( "SELECT COUNT(id) FROM $table_name" );
-		$open  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM $table_name WHERE status = %s", 'open' ) );
-		$resolved = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM $table_name WHERE status IN (%s, %s)", 'resolved', 'closed' ) );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$total    = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table_name}" );
+		$open     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$table_name} WHERE status = %s", 'open' ) );
+		$resolved = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$table_name} WHERE status IN (%s, %s)", 'resolved', 'closed' ) );
 
 		// Compute average resolution time in seconds.
 		// Handled via TIMESTAMPDIFF to work in MySQL.
 		$avg_res_time = (float) $wpdb->get_var(
-			"SELECT AVG(TIMESTAMPDIFF(SECOND, created_at, resolved_at)) FROM $table_name WHERE resolved_at IS NOT NULL"
+			"SELECT AVG(TIMESTAMPDIFF(SECOND, created_at, resolved_at)) FROM {$table_name} WHERE resolved_at IS NOT NULL"
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array(
 			'total_tickets'          => $total,

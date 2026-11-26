@@ -1,4 +1,10 @@
 <?php
+/**
+ * GitHub Webhook Handler for GitSupport Engine.
+ *
+ * @package GitSupport\Engine
+ */
+
 namespace GitSupport\Engine\API;
 
 use WP_REST_Request;
@@ -31,7 +37,7 @@ class Github_Webhook_Handler {
 			return new WP_Error( 'missing_signature', __( 'Missing X-Hub-Signature-256 header.', 'gitsupport-engine' ), array( 'status' => 401 ) );
 		}
 
-		$raw_body = $request->get_body();
+		$raw_body           = $request->get_body();
 		$computed_signature = 'sha256=' . hash_hmac( 'sha256', $raw_body, $webhook_secret );
 
 		if ( ! hash_equals( $computed_signature, $signature_header ) ) {
@@ -56,7 +62,13 @@ class Github_Webhook_Handler {
 			return $this->handle_issue_event( $payload );
 		}
 
-		return new WP_REST_Response( array( 'success' => true, 'message' => __( 'Event ignored.', 'gitsupport-engine' ) ), 200 );
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => __( 'Event ignored.', 'gitsupport-engine' ),
+			),
+			200
+		);
 	}
 
 	/**
@@ -71,7 +83,13 @@ class Github_Webhook_Handler {
 		$issue   = isset( $payload['issue'] ) ? $payload['issue'] : array();
 
 		if ( 'created' !== $action || empty( $comment ) || empty( $issue ) ) {
-			return new WP_REST_Response( array( 'success' => true, 'message' => __( 'Comment action ignored.', 'gitsupport-engine' ) ), 200 );
+			return new WP_REST_Response(
+				array(
+					'success' => true,
+					'message' => __( 'Comment action ignored.', 'gitsupport-engine' ),
+				),
+				200
+			);
 		}
 
 		$comment_body = isset( $comment['body'] ) ? $comment['body'] : '';
@@ -79,7 +97,13 @@ class Github_Webhook_Handler {
 
 		// Check if comment contains "/send".
 		if ( strpos( $comment_body, '/send' ) === false ) {
-			return new WP_REST_Response( array( 'success' => true, 'message' => __( 'No command in comment.', 'gitsupport-engine' ) ), 200 );
+			return new WP_REST_Response(
+				array(
+					'success' => true,
+					'message' => __( 'No command in comment.', 'gitsupport-engine' ),
+				),
+				200
+			);
 		}
 
 		// Fetch ticket from database.
@@ -90,8 +114,8 @@ class Github_Webhook_Handler {
 
 		// Extract email message.
 		$email_text = '';
-		$pos = strpos( $comment_body, '/send' );
-		if ( $pos !== false ) {
+		$pos        = strpos( $comment_body, '/send' );
+		if ( false !== $pos ) {
 			$email_text = trim( substr( $comment_body, $pos + 5 ) );
 		}
 
@@ -100,9 +124,9 @@ class Github_Webhook_Handler {
 		}
 
 		// Compose Email.
-		$to = $ticket->customer_email;
+		$to             = $ticket->customer_email;
 		$original_title = isset( $issue['title'] ) ? $issue['title'] : 'Support Request';
-		
+
 		$subject = ( stripos( $original_title, 'Re:' ) === 0 ) ? $original_title : 'Re: ' . $original_title;
 
 		$headers = array();
@@ -119,7 +143,7 @@ class Github_Webhook_Handler {
 		}
 
 		// Determine if comment indicates resolution, or if issue is already closed.
-		$status = 'open';
+		$status      = 'open';
 		$is_resolved = ( 'closed' === $issue['state'] ) || ( strpos( $comment_body, '/resolve' ) !== false ) || ( strpos( $comment_body, '/close' ) !== false );
 
 		if ( $is_resolved ) {

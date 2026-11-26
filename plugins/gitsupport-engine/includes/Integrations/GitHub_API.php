@@ -1,4 +1,10 @@
 <?php
+/**
+ * GitHub API Client for GitSupport Engine.
+ *
+ * @package GitSupport\Engine
+ */
+
 namespace GitSupport\Engine\Integrations;
 
 use WP_Error;
@@ -50,13 +56,14 @@ class GitHub_API {
 			return $response;
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		$status_code   = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 
 		if ( 201 !== $status_code && 200 !== $status_code ) {
 			return new WP_Error(
 				'github_api_error',
-				sprintf( __( 'GitHub API responded with code %d: %s', 'gitsupport-engine' ), $status_code, $response_body )
+				/* translators: 1: HTTP status code, 2: response body message */
+				sprintf( __( 'GitHub API responded with code %1$d: %2$s', 'gitsupport-engine' ), $status_code, $response_body )
 			);
 		}
 

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Main Plugin Orchestrator for GitSupport Engine.
+ *
+ * @package GitSupport\Engine
+ */
+
 namespace GitSupport\Engine;
 
 use GitSupport\Engine\API\REST_Controller;

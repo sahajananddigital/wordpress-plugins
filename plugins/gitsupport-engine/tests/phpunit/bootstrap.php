@@ -6,8 +6,12 @@
 // Determine where the WP test suite lives.
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
-if ( ! $_tests_dir ) {
-	$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
+if ( ! $_tests_dir || ! file_exists( $_tests_dir . '/includes/bootstrap.php' ) ) {
+	if ( file_exists( '/wordpress-tests-lib/includes/bootstrap.php' ) ) {
+		$_tests_dir = '/wordpress-tests-lib';
+	} else {
+		$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
+	}
 }
 
 if ( ! file_exists( $_tests_dir . '/includes/bootstrap.php' ) ) {

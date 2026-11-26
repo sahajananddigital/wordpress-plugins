@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API Controller for GitSupport Engine.
+ *
+ * @package GitSupport\Engine
+ */
+
 namespace GitSupport\Engine\API;
 
 use WP_REST_Controller;
@@ -23,7 +29,7 @@ class REST_Controller extends WP_REST_Controller {
 	 * Register REST API routes.
 	 */
 	public function register_routes() {
-		// GET /settings
+		// GET /settings.
 		register_rest_route(
 			$this->namespace,
 			'/settings',
@@ -36,7 +42,7 @@ class REST_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// POST /settings
+		// POST /settings.
 		register_rest_route(
 			$this->namespace,
 			'/settings',
@@ -49,7 +55,7 @@ class REST_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// GET /metrics
+		// GET /metrics.
 		register_rest_route(
 			$this->namespace,
 			'/metrics',
@@ -62,7 +68,7 @@ class REST_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// POST /inbound
+		// POST /inbound.
 		register_rest_route(
 			$this->namespace,
 			'/inbound',
@@ -75,7 +81,7 @@ class REST_Controller extends WP_REST_Controller {
 			)
 		);
 
-		// POST /github-comment
+		// POST /github-comment.
 		register_rest_route(
 			$this->namespace,
 			'/github-comment',
@@ -83,7 +89,7 @@ class REST_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'handle_github_comment' ),
-					'permission_callback' => '__return_true', // signature verification happens in the handler
+					'permission_callback' => '__return_true', // Signature verification happens in the handler.
 				),
 			)
 		);
@@ -140,13 +146,13 @@ class REST_Controller extends WP_REST_Controller {
 	 */
 	public function get_settings() {
 		$settings = array(
-			'github_api_token'       => get_option( 'gitsupport_github_token', '' ),
-			'github_repo_owner'      => get_option( 'gitsupport_github_owner', '' ),
-			'github_repo_name'       => get_option( 'gitsupport_github_repo', '' ),
-			'github_webhook_secret'  => get_option( 'gitsupport_github_webhook_secret', '' ),
-			'inbound_email_secret'   => get_option( 'gitsupport_inbound_secret', '' ),
-			'ai_api_key'             => get_option( 'gitsupport_ai_api_key', '' ),
-			'ai_provider'            => get_option( 'gitsupport_ai_provider', 'gemini' ),
+			'github_api_token'      => get_option( 'gitsupport_github_token', '' ),
+			'github_repo_owner'     => get_option( 'gitsupport_github_owner', '' ),
+			'github_repo_name'      => get_option( 'gitsupport_github_repo', '' ),
+			'github_webhook_secret' => get_option( 'gitsupport_github_webhook_secret', '' ),
+			'inbound_email_secret'  => get_option( 'gitsupport_inbound_secret', '' ),
+			'ai_api_key'            => get_option( 'gitsupport_ai_api_key', '' ),
+			'ai_provider'           => get_option( 'gitsupport_ai_provider', 'gemini' ),
 		);
 
 		return new WP_REST_Response( $settings, 200 );
@@ -183,7 +189,13 @@ class REST_Controller extends WP_REST_Controller {
 			update_option( 'gitsupport_ai_provider', sanitize_text_field( $params['ai_provider'] ) );
 		}
 
-		return new WP_REST_Response( array( 'success' => true, 'message' => __( 'Settings saved successfully.', 'gitsupport-engine' ) ), 200 );
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => __( 'Settings saved successfully.', 'gitsupport-engine' ),
+			),
+			200
+		);
 	}
 
 	/**

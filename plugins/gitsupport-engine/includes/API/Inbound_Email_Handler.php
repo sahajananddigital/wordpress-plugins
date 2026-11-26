@@ -1,4 +1,10 @@
 <?php
+/**
+ * Inbound Email Handler for GitSupport Engine.
+ *
+ * @package GitSupport\Engine
+ */
+
 namespace GitSupport\Engine\API;
 
 use WP_REST_Request;
@@ -46,7 +52,7 @@ class Inbound_Email_Handler {
 		// Clean up fields.
 		$email_body = ! empty( $text_body ) ? $text_body : wp_strip_all_tags( $html_body );
 
-		// Extract email address from From string (e.g. "John Doe <john@example.com>")
+		// Extract email address from From string (e.g. "John Doe <john@example.com>").
 		$customer_email = $this->extract_email( $from );
 
 		if ( empty( $customer_email ) ) {

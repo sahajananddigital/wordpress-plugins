@@ -20,6 +20,11 @@
     <rule ref="WordPress-Extra"/>
     <rule ref="WordPress-Docs"/>
 
+    <!-- Allow PSR-4 namespaced class files in includes directory -->
+    <rule ref="WordPress.Files.FileName">
+        <exclude-pattern>includes/*</exclude-pattern>
+    </rule>
+
     <!-- Global namespace prefixing rules -->
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>

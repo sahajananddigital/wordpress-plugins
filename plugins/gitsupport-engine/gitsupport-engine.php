@@ -9,6 +9,8 @@
  * License: GPL2
  * Text Domain: gitsupport-engine
  * Domain Path: /languages
+ *
+ * @package GitSupport\Engine
  */
 
 // Exit if accessed directly.
@@ -28,7 +30,11 @@ require_once GITSUPPORT_ENGINE_PATH . 'includes/Autoloader.php';
 // Register Activation Hook.
 register_activation_hook( __FILE__, array( '\GitSupport\Engine\Database', 'activate' ) );
 
-// Initialize the main plugin.
+/**
+ * Initialize the main plugin.
+ *
+ * @return void
+ */
 function gitsupport_engine_run() {
 	\GitSupport\Engine\Plugin::get_instance();
 }

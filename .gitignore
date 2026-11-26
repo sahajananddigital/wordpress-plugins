@@ -1,0 +1,12 @@
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Runtime & Build artifacts
+node_modules/
+vendor/
+
+# RunWield owned runtime state
+.wld/internal/

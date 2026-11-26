@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - master
+      - developement
   pull_request:
     branches:
       - main
       - master
+      - developement
 
 jobs:
   lint-php:
@@ -42,7 +44,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: plugins/gitsupport-engine/package.json
+          cache-dependency-path: plugins/gitsupport-engine/package-lock.json
 
       - name: Start Docker Service
         run: sudo systemctl start docker || true
@@ -76,4 +78,4 @@ jobs:
       - name: Stop WordPress Environment
         working-directory: plugins/gitsupport-engine
         if: always()
-        run: npm run env:stop
+        run: npm run env:stop || true
